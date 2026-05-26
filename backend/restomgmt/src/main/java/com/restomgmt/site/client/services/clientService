@@ -1,1 +1,34 @@
 package com.restomgmt.site.client.services;
+
+import com.restomgmt.site.client.models.Client;
+import com.restomgmt.sit.client.repositories.clientRepo;
+
+import org.spirngframework.*;
+
+import java.util.*;
+
+@Service
+public class clientService {
+    @Autowired
+    private clientRepo clientRepo;
+
+    public Client addClient (Client client) {
+        return clientRepo.save(client);
+    }
+
+    public List<Client> getAllClients() {
+        return clientRepo.findAll();
+    }
+
+    public Optional<Client> findClientById(Long id) {
+        return Optional.ofNullable(clientRepo.getById(id));
+    }
+
+    public void deleteClient(Client client) {
+        clientRepo.delete(client);
+    }
+
+    public void updateClient(Client client) {
+        clientRepo.save(client);
+    }
+}

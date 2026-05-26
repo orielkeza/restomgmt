@@ -1,1 +1,12 @@
 package com.restomgmt.site.client.repositories;
+
+import com.restomgmt.site.client.models.client;
+import org.springframework.*;
+
+import java.util.List;
+
+@Repository
+public interface ClientRepo extends JpaRepository <Client, Long> {
+    public Client getById(Long id);
+    public List<Client> findAll();
+}
