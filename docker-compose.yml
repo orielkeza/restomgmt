@@ -7,7 +7,7 @@ services:
     container_name: resto_postgres
     restart: always
     environment:
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_DB: resto_db
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
