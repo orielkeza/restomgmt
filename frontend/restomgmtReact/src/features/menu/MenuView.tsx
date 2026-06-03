@@ -60,7 +60,6 @@ export const MenuView: React.FC = () => {
                 })}
             </div>
 
-            //items grid container
             {}
             <div style={{
                 display: 'grid',
@@ -75,7 +74,7 @@ export const MenuView: React.FC = () => {
                             borderRadius: '12px',
                             padding: '16px',
                             textAlign: 'center',
-                            boxShadow: '0 4px 6px rgba(0,0,0,0.02'
+                            boxShadow: '0 4px 6px rgba(0,0,0,0.02)'
                         }}
                     >
                     <h3 style={{ margin: '12px 0 6px 0', fontSize: '16px', color: '#333' }}>{item.name}</h3>
@@ -96,6 +95,7 @@ export const MenuView: React.FC = () => {
                     }}>
                         Add to Order
                     </button>
+                </div>
                 ))}
             </div>
         </div>

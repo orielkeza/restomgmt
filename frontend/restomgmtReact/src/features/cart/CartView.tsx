@@ -63,7 +63,7 @@ export const CartView: React.FC = () => {
                         <tr style={{ borderBottom: '2px solid #ccc' }}>
                             <th style={{ padding: '12px' }}>Items</th>
                             <th style={{ padding: '12px' }}>Quantity</th>
-                            <th style={{ padding: '12px' }}>Status</th>
+                            <th style={{ padding: '12px' }}>Price</th>
                         </tr>
                         </thead>
 
@@ -86,9 +86,10 @@ export const CartView: React.FC = () => {
                         borderRadius: '6px',
                         fontWeight: 'bold',
                         cursor: 'pointer',
-                        marginTop: '20px'
+                        marginTop: '20px',
+                        fontSize: '20px'
                     }}>
-                        Log In
+                        Pay With Momo
                     </button>
                 </form>
             </div>

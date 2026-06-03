@@ -3,10 +3,11 @@ import {useState} from 'react';
 import { LoginView } from './features/auth/LoginView';
 import { RegistrationView } from './features/auth/RegistrationView';
 import { CartView } from './features/cart/CartView';
+import { MenuView } from './features/menu/MenuView';
 
 function App() {
 //local state to track which screen we want to view rn
-const [currentView, setCurrentView] = useState<'login' | 'registration' | 'cart'>('login');
+const [currentView, setCurrentView] = useState<'login' | 'registration' | 'cart' | 'menu' >('login');
 
 const renderView = () => {
   switch (currentView) {
@@ -16,6 +17,8 @@ const renderView = () => {
       return <RegistrationView />;
     case 'cart':
       return <CartView />;
+    case 'menu':
+      return <MenuView />;
     default:
       return <LoginView />;
   }
@@ -55,6 +58,12 @@ const renderView = () => {
         >
           View Cart
         </button>
+        <button
+          onClick={() => setCurrentView('menu')}
+          style={{ fontWeight: currentView === 'menu' ? 'bold' : 'normal', cursor: 'pointer' }}
+          >
+            View Menu
+          </button>
       </div>
 
       {}
