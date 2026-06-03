@@ -4,6 +4,7 @@ import { LoginView } from './features/auth/LoginView';
 import { RegistrationView } from './features/auth/RegistrationView';
 import { CartView } from './features/cart/CartView';
 import { MenuView } from './features/menu/MenuView';
+import { DashboardView } from './features/dashboard/DashboardView';
 
 function App() {
 //local state to track which screen we want to view rn
@@ -19,6 +20,8 @@ const renderView = () => {
       return <CartView />;
     case 'menu':
       return <MenuView />;
+    case 'dashboard':
+      return <DashboardView />;
     default:
       return <LoginView />;
   }
@@ -63,7 +66,13 @@ const renderView = () => {
           style={{ fontWeight: currentView === 'menu' ? 'bold' : 'normal', cursor: 'pointer' }}
           >
             View Menu
-          </button>
+        </button>
+        <button
+          onClick={() => setCurrentView('dashboard')}
+          style={{ fontWeight: currentView === 'dashboard' ? 'bold' : 'normal', cursor: 'pointer' }}
+          >
+            View Dashboard
+        </button>
       </div>
 
       {}
