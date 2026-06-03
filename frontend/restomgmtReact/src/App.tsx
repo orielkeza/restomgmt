@@ -2,7 +2,7 @@ import './App.css';
 import {useState} from 'react';
 import { LoginView } from './features/auth/LoginView';
 import { RegistrationView } from './features/auth/RegistrationView';
-import { CartView } from './features/auth/CartView';
+import { CartView } from './features/cart/CartView';
 
 function App() {
 //local state to track which screen we want to view rn

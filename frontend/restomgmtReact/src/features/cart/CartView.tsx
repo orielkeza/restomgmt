@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { loginSuccess } from './authSlice';
+import { loginSuccess } from '../auth/authSlice';
 
-
-export const MenuView: React.FC = () => {
+export const CartView: React.FC = () => {
     const dispatch = useDispatch();
 
     //keeps track of what the user types in real-time
@@ -22,15 +21,15 @@ export const MenuView: React.FC = () => {
 
     interface RowData {
         id: number;
-        drink: string;
+        item: string;
         quantity: number;
         price: number;
     }
 
     const sampleData: RowData[] = [
-        { id: 1, drink: 'Soda', quantity: 1, price: 25 },
-        { id: 2, drink: 'Virgin Mojito', quantity: 2, price: 8 },
-        { id: 3, drink: 'Fruit Salad', quantity: 2, price: 12 },
+        { id: 1, item: 'Chicken Wings', quantity: 1, price: 25 },
+        { id: 2, item: 'Virgin Mojito', quantity: 2, price: 8 },
+        { id: 3, item: 'Fruit Salad', quantity: 2, price: 12 },
     ];
 
     return (
@@ -53,7 +52,7 @@ export const MenuView: React.FC = () => {
                 boxShadow: '0px 8px 16px rgba(0,0,0,1)',
                 textAlign: 'center'
             }}>
-                <h1 style={{ margin: '0 0 4px 0', fontSize: '24px', color: '#333' }}>Menu</h1>                
+                <h1 style={{ margin: '0 0 4px 0', fontSize: '24px', color: '#333' }}>Cart</h1>                
                 {error && <p style={{ color: 'red', fontSize: '14px'}}>{error}</p>}
 
                 {}
@@ -62,7 +61,7 @@ export const MenuView: React.FC = () => {
                         {/* Table Header */}
                         <thead>
                         <tr style={{ borderBottom: '2px solid #ccc' }}>
-                            <th style={{ padding: '12px' }}>Drinks</th>
+                            <th style={{ padding: '12px' }}>Items</th>
                             <th style={{ padding: '12px' }}>Quantity</th>
                             <th style={{ padding: '12px' }}>Status</th>
                         </tr>
@@ -72,7 +71,7 @@ export const MenuView: React.FC = () => {
                         <tbody>
                         {sampleData.map((row) => (
                             <tr key={row.id} style={{ borderBottom: '1px solid #eee' }}>
-                            <td style={{ padding: '12px' }}>{row.drink}</td>
+                            <td style={{ padding: '12px' }}>{row.item}</td>
                             <td style={{ padding: '12px' }}>{row.quantity}</td>
                             <td style={{ padding: '12px' }}>{row.price}</td>
                             </tr>
