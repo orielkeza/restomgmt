@@ -2,10 +2,24 @@ import './App.css';
 import {useState} from 'react';
 import { LoginView } from './features/auth/LoginView';
 import { RegistrationView } from './features/auth/RegistrationView';
+import { CartView } from './features/auth/CartView';
 
 function App() {
 //local state to track which screen we want to view rn
-const [currentView, setCurrentView] = useState<'login' | 'registration'>('login');
+const [currentView, setCurrentView] = useState<'login' | 'registration' | 'cart'>('login');
+
+const renderView = () => {
+  switch (currentView) {
+    case 'login':
+      return <LoginView />;
+    case 'registration':
+      return <RegistrationView />;
+    case 'cart':
+      return <CartView />;
+    default:
+      return <LoginView />;
+  }
+};
 
   return (
     <div style={{ position: 'relative' }}>
@@ -34,11 +48,17 @@ const [currentView, setCurrentView] = useState<'login' | 'registration'>('login'
           style={{ fontWeight: currentView === 'registration' ? 'bold' : 'normal', cursor: 'pointer' }}
           >
             View Registration
-          </button>
+        </button>
+        <button 
+          onClick={() => setCurrentView('cart')}
+          style={{ fontWeight: currentView === 'cart' ? 'bold' : 'normal', cursor: 'pointer' }}
+        >
+          View Cart
+        </button>
       </div>
 
       {}
-      {currentView === 'login' ? <LoginView /> : <RegistrationView /> }
+      {renderView()}
     </div>
   );
 }
