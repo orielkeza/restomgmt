@@ -70,14 +70,14 @@ export const LoginView: React.FC = () => {
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px'}}>
                     <input
                         type="text"
-                        placeholder="Username"
+                        placeholder="username"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         style={inputStyle}
                     />
                     <input
                         type="password"
-                        placeholder="Username"
+                        placeholder="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         style={inputStyle}

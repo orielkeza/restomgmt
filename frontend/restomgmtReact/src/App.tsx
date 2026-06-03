@@ -5,7 +5,7 @@ import { RegistrationView } from './features/auth/RegistrationView';
 
 function App() {
 //local state to track which screen we want to view rn
-const [currentView, setCurrentView] = useState<'login' | 'register'>('login');
+const [currentView, setCurrentView] = useState<'login' | 'registration'>('login');
 
   return (
     <div style={{ position: 'relative' }}>
@@ -31,10 +31,16 @@ const [currentView, setCurrentView] = useState<'login' | 'register'>('login');
         </button>
         <button
           onClick={()=> setCurrentView('registration')}
-          style={{ fontWeight: currentView === 'registration' ? 'bold' : 'normal
+          style={{ fontWeight: currentView === 'registration' ? 'bold' : 'normal', cursor: 'pointer' }}
+          >
+            View Registration
+          </button>
       </div>
+
+      {}
+      {currentView === 'login' ? <LoginView /> : <RegistrationView /> }
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

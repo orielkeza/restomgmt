@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from './authSlice';
 
-export const LoginView: React.FC = () => {
+export const RegistrationView: React.FC = () => {
     const dispatch = useDispatch();
 
     //keeps track of what the user types in real-time
@@ -78,14 +78,14 @@ export const LoginView: React.FC = () => {
                     />
                     <input
                         type="text"
-                        placeholder="Username"
+                        placeholder="username"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         style={inputStyle}
                     />
                     <input
                         type="password"
-                        placeholder="Username"
+                        placeholder="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         style={inputStyle}
