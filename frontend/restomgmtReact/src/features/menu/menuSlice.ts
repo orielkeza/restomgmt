@@ -25,7 +25,7 @@ const initialState: MenuState = {
         {id: 4, name: 'Coke', price: 1000, category: 'drinks', isPopular: true},
         {id: 5, name: '5 Piece Chicken Combo', price: 2000, category: 'combo', isPopular: true},
         {id: 6, name: 'Coffee', price: 2500, category: 'drinks', isPopular: false},
-        {id: 1, name: 'Seafood Mix', price: 50000, category: 'combo', isPopular: false},
+        {id: 7, name: 'Seafood Mix', price: 50000, category: 'combo', isPopular: false},
     ],
 };
 

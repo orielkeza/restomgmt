@@ -2,14 +2,28 @@ import { createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 
 export interface DashboardItem {
+    /*id: number | null;
+    name: string |null;
+    customerName: string | null;
+    date: Date | null;
+    meal: string | null;
+    price: number| null;
+    payment: boolean | null;
+    orderProcessed: boolean | null;
+    items: Array<string> | null; */
     id: number;
-    name: string;
-    price: number;
-    category: 'food' | 'drinks' | 'combo';
-    isPopular: boolean;
+    name?: string;
+    customerName?: string;
+    date?: Date;
+    meal?: string;
+    price?: number;
+    payment?: boolean;
+    status?: 'order taken' | 'preparing' | 'done';
+    items?: Array<string>;
+    category: 'bookings' | 'orders' | 'payments';
 }
 
-export type DashboardCategoryTab = 'all' | 'food' | 'drinks' | 'combo' | 'popular';
+export type DashboardCategoryTab = 'bookings' | 'orders' | 'payments';
 
 interface DashboardState {
     items: DashboardItem[];
@@ -17,15 +31,15 @@ interface DashboardState {
 }
 
 const initialState: DashboardState = {
-    activeTab: 'all',
+    activeTab: 'bookings',
     items: [
-        {id: 1, name: 'Burger', price: 5500, category: 'food', isPopular: true},
-        {id: 2, name: 'Pizza', price: 15000, category: 'food', isPopular: true},
-        {id: 3, name: 'Igitoki', price: 4000, category: 'food', isPopular: false},
-        {id: 4, name: 'Coke', price: 1000, category: 'drinks', isPopular: true},
-        {id: 5, name: '5 Piece Chicken Combo', price: 2000, category: 'combo', isPopular: true},
-        {id: 6, name: 'Coffee', price: 2500, category: 'drinks', isPopular: false},
-        {id: 1, name: 'Seafood Mix', price: 50000, category: 'combo', isPopular: false},
+        {id: 1, customerName: 'Charles', date: new Date("2026-06-04"), items: ["Seafood Platter"], category: 'bookings' },
+        {id: 2, customerName: 'James', date: new Date("2026-11-24"), items: ["5 Piece Chicken Combo"], category: 'bookings' }, 
+        {id: 3, customerName: 'Sophia', date: new Date("2027-09-11"), status: 'order taken', category: 'orders' },
+        {id: 4, customerName: 'Laura', date: new Date("2026-05-19"), status: 'preparing', category: 'orders' },
+        {id: 5, customerName: 'Jean', date: new Date("2026-12-01"), status: 'done', category: 'orders' },
+        {id: 6, customerName: 'Luka', date: new Date("2026-04-15"), price: 60, payment: true, category: 'payments' },
+        {id: 7, customerName: 'Shaq', date: new Date("2026-10-06"), price: 30, payment: false, category: 'payments' },
     ],
 };
 

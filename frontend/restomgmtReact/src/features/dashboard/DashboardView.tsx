@@ -11,28 +11,25 @@ export const DashboardView: React.FC = () => {
 
     //dynamic filtration of items based on the active tab
     const filteredItems = items.filter((item: DashboardItem) => {
-        if (activeTab === 'all'){
+        if (activeTab === 'bookings'){
             return true;
-        } else if (activeTab === 'food') {
-            return item.category === 'food';
-        } else if (activeTab === 'drinks') {
-            return item.category === 'drinks';
-        } else if (activeTab === 'combo') {
-            return item.category === 'combo';
+        } else if (activeTab === 'orders') {
+            return item.category === 'orders';
+        } else if (activeTab === 'payments') {
+            return item.category === 'payments';
         } 
     });
 
     //category tabs
     const tabs: { id: DashboardCategoryTab; label: string } [] = [
-        {id: 'all', label: 'All Items'},
-        {id: 'food', label: 'Food'},
-        {id: 'drinks', label: 'Drinks'},
-        {id: 'popular', label: 'Most Popular'},
+        {id: 'orders', label: 'Orders'},
+        {id: 'bookings', label: 'Bookings'},
+        {id: 'payments', label: 'Payments'},
     ];
 
     return (
         <div style={{ padding: '20px', fontFamily: 'sans-serif', maxWidth: '800px', margin: '0 auto'}}>
-            <h1 style={{ color: '#333', marginBottom: '24px' }}>Menu</h1>
+            <h1 style={{ color: '#333', marginBottom: '30px', textAlign: 'center', marginTop:'60px' }}>Dashboard</h1>
 
             {}
             <div style={{ display: 'flex', gap: '12px', marginBottom: '30px', borderBottom: '1px solid #eee', paddingBottom: '12px'}}>
@@ -77,9 +74,9 @@ export const DashboardView: React.FC = () => {
                             boxShadow: '0 4px 6px rgba(0,0,0,0.02)'
                         }}
                     >
-                    <h3 style={{ margin: '12px 0 6px 0', fontSize: '16px', color: '#333' }}>{item.name}</h3>
+                    <h3 style={{ margin: '12px 0 6px 0', fontSize: '16px', color: '#333' }}>{item.customerName}</h3>
                     <p style={{ color: '#E78B6D', fontWeight: 'bold', margin: '0 0 12px 0'}}>
-                        {item.price.toLocaleString()} RWF
+                        
                     </p>
 
                     {}

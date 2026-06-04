@@ -27,6 +27,7 @@ export const MenuView: React.FC = () => {
         {id: 'all', label: 'All Items'},
         {id: 'food', label: 'Food'},
         {id: 'drinks', label: 'Drinks'},
+        {id: 'combo', label: 'Combo'},
         {id: 'popular', label: 'Most Popular'},
     ];
 
