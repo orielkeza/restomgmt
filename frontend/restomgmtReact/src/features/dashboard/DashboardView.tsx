@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { type RootState } from '../../store/store';
 import { setActiveTab, type DashboardCategoryTab, type DashboardItem } from './dashboardSlice';
 
-export const DshboardView: React.FC = () => {
+export const DashboardView: React.FC = () => {
     const dispatch = useDispatch();
 
     //grabbing data from from global Redux dashboard cloud
