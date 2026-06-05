@@ -5,10 +5,11 @@ import { RegistrationView } from './features/auth/RegistrationView';
 import { CartView } from './features/cart/CartView';
 import { MenuView } from './features/menu/MenuView';
 import { DashboardView } from './features/dashboard/DashboardView';
+import { SeatBookingView } from './features/booking/SeatBookingView';
 
 function App() {
 //local state to track which screen we want to view rn
-const [currentView, setCurrentView] = useState<'login' | 'registration' | 'cart' | 'menu' >('login');
+const [currentView, setCurrentView] = useState<'login' | 'registration' | 'cart' | 'menu' | 'dashboard' | 'booking' >('login');
 
 const renderView = () => {
   switch (currentView) {
@@ -22,6 +23,8 @@ const renderView = () => {
       return <MenuView />;
     case 'dashboard':
       return <DashboardView />;
+    case 'booking':
+      return <SeatBookingView />;
     default:
       return <LoginView />;
   }
@@ -72,6 +75,12 @@ const renderView = () => {
           style={{ fontWeight: currentView === 'dashboard' ? 'bold' : 'normal', cursor: 'pointer' }}
           >
             View Dashboard
+        </button>
+        <button
+          onClick={() => setCurrentView('booking')}
+          style={{ fontWeight: currentView === 'booking' ? 'bold' : 'normal', cursor: 'pointer' }}
+          >
+            View Booking
         </button>
       </div>
 

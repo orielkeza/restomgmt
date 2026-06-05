@@ -26,7 +26,7 @@ export const LoginView: React.FC = () => {
         //sends he action to redux so that the user is logged in globally
 
         dispatch(loginSuccess(username));
-        alert('Logged in as ${username}');
+        alert(`Logged in as ${username}`);
     };
 
     return (
