@@ -3,6 +3,11 @@ package com.restomgmt.site.user.models;
 import java.time.LocalDate;
 import jakarta.persistence.*;
 
+//to extend to userdetails
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.GrantedAuthroity;
+import java.util.Collection;
+
 @Entity
 @Table(name = "users")
 public class UserNew implements UserDetails {
@@ -13,10 +18,11 @@ public class UserNew implements UserDetails {
     private String fullName;
     private String email;
     private String password;
+    private String username;
 
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
-    private Role role;
+    private RoleNew role;
 
     //getters and setters
 
@@ -32,8 +38,14 @@ public class UserNew implements UserDetails {
         return email;
     }
 
+    @Override
     public String getPassword() {
         return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return username;
     }
 
     public void setFullName(String fullName) {
@@ -46,5 +58,25 @@ public class UserNew implements UserDetails {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public void setUsername(String username){
+        this.username = username;
+    }
+
+    public collection <? extends GrantedAuthority> getAuthorities(){
+
+    }
+
+    public boolean isAccountNonExpired(){
+
+    }
+
+    public boolean isCredentialsNonExpired(){
+
+    }
+
+    public boolean isEnabled(){
+
     }
 }
