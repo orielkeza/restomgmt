@@ -8,7 +8,7 @@ import jakarta.persistence.*;
 public class RoleNew {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Enumerated(EnumType.STRING)
     @Column(unqiue = true, nullable = false)
@@ -29,7 +29,7 @@ public class RoleNew {
 
     public RoleNew() {}
 
-    public RoleNew(Integer id, RoleEnum name, String description, Date createdAt, Date updatedAt) {
+    public RoleNew(Long id, RoleEnum name, String description, Date createdAt, Date updatedAt) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -37,7 +37,7 @@ public class RoleNew {
         this.updatedAt = updatedAt;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 

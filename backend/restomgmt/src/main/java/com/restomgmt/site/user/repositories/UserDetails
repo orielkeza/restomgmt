@@ -1,0 +1,11 @@
+package com.restomgmt.site.user.repositories;
+
+import com.restomgmt.site.user.models.UserNew;
+import org.springframework.*;
+
+import java.util.List;
+
+@Repository
+public interface UserDetails extends JpaRepository <Staff, Long> {
+    
+}
