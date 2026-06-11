@@ -1,11 +1,53 @@
 package com.restomgmt.site.user.security;
 
 import com.restomgmt.site.user.models.UserNew;
-import org.springframework.*;
-import com.restomgmt.site.user.repositories.clientRepo;
-import java.util.*;
+import com.restomgmt.site.user.repositories.UserNewRepository;
+import com.restomgmt.site.user.util.JwtUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
-public UserNew signup(RegisterUserDto input) {
+import java.util.ArrayList;
+
+public class AuthenticationService implements UserDetailsService {
+    
+    @Autowired
+    private UserNewRepository userNewRepository;
+
+    @Autowired 
+    private JwtUtil jwtUtil;
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    public String authenticate(String username, String password) {
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+        final UserDetails userDetails = loadByUsername(username);
+        return jwtUtil.generateToken(userDetails.getUsername());    
+    }
+
+    //@Override
+    public UserDetails loadByUsername(String username) throws UsernameNotFoundException {
+        UserNew user = userNewRepository.findByUsername(username)
+                        .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return new org.springframework.security.core.userdetails.User(user.getUsername(),
+                                                                      user.getPassword(),
+                                                                      new ArrayList<>());
+    }
+
+    public UserNew registerUser (UserNew user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userNewRepository.save(user);
+    }
+}
+
+/*public UserNew signup(RegisterUserDto input) {
     Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
 
     if (optionalRole.isEmpty()) {
@@ -20,3 +62,4 @@ public UserNew signup(RegisterUserDto input) {
 
         return userNewRepository.save(user);
     }
+*/

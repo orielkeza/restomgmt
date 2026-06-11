@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 
 //to extend to userdetails
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.GrantedAuthroity;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.CredentialsContainer;
 
@@ -24,10 +24,10 @@ public class UserNew implements UserDetails, CredentialsContainer {
     private String email;
     private String password;
     private String username;
-    private boolean enabled;
-    private boolean accountNonExpired;
-    private boolean credentialsNonExpired;
-    private boolean accountNonLocked;
+    private Boolean enabled;
+    private Boolean accountNonExpired;
+    private Boolean credentialsNonExpired;
+    private Boolean accountNonLocked;
     private Collection<? extends GrantedAuthority> authorities;  //used in Spring Security to manage user permissions and roles
 
     @ManyToOne(cascade = CascadeType.REMOVE)
@@ -39,7 +39,7 @@ public class UserNew implements UserDetails, CredentialsContainer {
     public UserNew (String fullName,
                     String email,
                     String username,
-                    @Nullable String password, //in case of passkeys
+                    String password, //in case of passkeys
                     Collection<? extends GrantedAuthority> authorities)
     {
         this.fullName = fullName;
@@ -96,7 +96,7 @@ public class UserNew implements UserDetails, CredentialsContainer {
     }
 
     @Override
-    public collection <? extends GrantedAuthority> getAuthorities(){
+    public Collection <? extends GrantedAuthority> getAuthorities(){
         return authorities;
     }
 
@@ -125,5 +125,9 @@ public class UserNew implements UserDetails, CredentialsContainer {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public void eraseCredentials(){
+
     }
 }
