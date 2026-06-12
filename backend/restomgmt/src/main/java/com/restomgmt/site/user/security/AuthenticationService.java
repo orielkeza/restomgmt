@@ -8,7 +8,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
+//import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
@@ -28,12 +28,12 @@ public class AuthenticationService implements UserDetailsService {
 
     public String authenticate(String username, String password) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-        final UserDetails userDetails = loadByUsername(username);
+        final UserDetails userDetails = loadUserByUsername(username);
         return jwtUtil.generateToken(userDetails.getUsername());    
     }
 
-    //@Override
-    public UserDetails loadByUsername(String username) throws UsernameNotFoundException {
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserNew user = userNewRepository.findByUsername(username)
                         .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         return new org.springframework.security.core.userdetails.User(user.getUsername(),
