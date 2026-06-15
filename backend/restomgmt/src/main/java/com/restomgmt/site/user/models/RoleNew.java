@@ -2,6 +2,9 @@ package com.restomgmt.site.user.models;
 
 import java.time.LocalDate;
 import jakarta.persistence.*;
+import java.util.Date;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Table(name = "roles")
@@ -11,18 +14,18 @@ public class RoleNew {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(unqiue = true, nullable = false)
+    @Column(unique = true, nullable = false)
     private RoleEnum name;
 
-    @column(nullable = false)
+    @Column(nullable = false)
     private String description;
 
-    @CreationTimeStamp
+    @CreationTimestamp
     @Column(updateable = false, name = "created_at")
     private Date createdAt;
 
     @UpdateTimestamp
-    @column(name = "updated_at")
+    @Column(name = "updated_at")
     private Date updatedAt;
 
     //add the getters and the setters
