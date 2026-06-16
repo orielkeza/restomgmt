@@ -4,6 +4,9 @@ import com.restomgmt.site.user.models.UserNew;
 import com.restomgmt.site.user.repositories.UserNewRepository;
 import com.restomgmt.site.user.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.*;
@@ -11,6 +14,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 //import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+
+import javax.management.relation.Role;
 
 public class AuthenticationService implements UserDetailsService {
     
@@ -45,6 +50,10 @@ public class AuthenticationService implements UserDetailsService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userNewRepository.save(user);
     }
+
+
+    //has to do with the permissions stuff, might be moved later
+
 }
 
 /*public UserNew signup(RegisterUserDto input) {
