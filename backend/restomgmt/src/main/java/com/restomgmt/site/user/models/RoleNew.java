@@ -1,18 +1,50 @@
 package com.restomgmt.site.user.models;
 
-import java.time.LocalDate;
+//import java.time.LocalDate;
 import jakarta.persistence.*;
-import java.util.Date;
-import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.annotations.CreationTimestamp;
+//import java.util.Date;
+//import org.hibernate.annotations.UpdateTimestamp;
+//import org.hibernate.annotations.CreationTimestamp;
+import java.util.Collection;
+
+import com.restomgmt.site.user.permission.Permission;
+
 
 @Entity
-@Table(name = "roles")
+//@Table(name = "roles")
 public class RoleNew {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String name;
+
+    @ManyToMany(mappedBy = "roles")
+    private Collection<UserNew> users;
+
+    @ManyToMany
+    @JoinTable(
+        name = "roles_permissions",
+        joinColumns = @JoinColumn(
+            name = "role_id", referencedColumnName = "id"
+        ),
+        inverseJoinColumns = @JoinColumn(
+            name = "permission", referencedColumnName = "id"
+        )
+    )
+    private Collection<Permission> permissions;
+
+    public RoleNew() {}
+
+    public RoleNew(String name) {
+        this.name = name;
+    }
+
+    public void setPermissions(Collection<Permission> permissions) {
+        this.permissions = permissions;
+    }
+
+    /* 
     @Enumerated(EnumType.STRING)
     @Column(unique = true, nullable = false)
     private RoleEnum name;
@@ -67,4 +99,5 @@ public class RoleNew {
     public void setDescription(String description) {
         this.description = description;
     }
+    */
 }

@@ -1,21 +1,24 @@
 package com.restomgmt.site.user.models;
 
-import java.time.LocalDate;
+//import java.time.LocalDate;
 import jakarta.persistence.*;
 
 //to extend to userdetails
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.CredentialsContainer;
+//import org.springframework.security.core.userdetails.UserDetails;
+//import org.springframework.security.core.GrantedAuthority;
+//import org.springframework.security.core.authority.SimpleGrantedAuthority;
+//import org.springframework.security.core.CredentialsContainer;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+//import java.util.List;
+//import java.util.Objects;
+
+import jakarta.validation.constraints.Email;
 
 @Entity
-@Table(name = "users")
-public class UserNew implements UserDetails, CredentialsContainer {
+//@Table(name = "users")
+//public class UserNew implements UserDetails, CredentialsContainer {
+public class UserNew {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -24,33 +27,49 @@ public class UserNew implements UserDetails, CredentialsContainer {
     private String email;
     private String password;
     private String username;
-    private Boolean enabled;
-    private Boolean accountNonExpired;
-    private Boolean credentialsNonExpired;
-    private Boolean accountNonLocked;
-    private Collection<? extends GrantedAuthority> authorities;  //used in Spring Security to manage user permissions and roles
+    private boolean enabled;
+    private boolean tokenExpired;
+    //private Boolean accountNonExpired;
+    //private Boolean credentialsNonExpired;
+    //private Boolean accountNonLocked;
+    //private Collection<? extends GrantedAuthority> authorities;  //used in Spring Security to manage user permissions and roles
 
+    /* 
     @ManyToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
     private RoleNew role;
+    */
+
+    @ManyToMany
+    @JoinTable(
+        name = "users_roles",
+        joinColumns = @JoinColumn(
+            name = "user_id", referencedColumnName = "id"
+        ),
+        inverseJoinColumns = @JoinColumn(
+            name = "role_id", referencedColumnName ="id"
+        )
+    )
+    private Collection<RoleNew> roles;
 
     public UserNew () {}
 
     public UserNew (String fullName,
                     String email,
                     String username,
-                    String password, //in case of passkeys
-                    Collection<? extends GrantedAuthority> authorities)
+                    String password //in case of passkeys
+                    )
     {
         this.fullName = fullName;
         this.email = email;
         this.username = username;
         this.password = password;
         this.enabled = true;
-        this.accountNonExpired = true;
-        this.credentialsNonExpired = true;
-        this.accountNonLocked = true;
-        this.authorities = authorities;
+        this.tokenExpired = false;
+        //this.accountNonExpired = true;
+        //this.credentialsNonExpired = true;
+        //this.accountNonLocked = true;
+        //this.authorities = authorities;
     }
 
     //getters and setters
@@ -67,12 +86,12 @@ public class UserNew implements UserDetails, CredentialsContainer {
         return email;
     }
 
-    @Override
+    //@Override
     public String getPassword() {
         return password;
     }
 
-    @Override
+    //@Override
     public String getUsername() {
         return username;
     }
@@ -81,7 +100,7 @@ public class UserNew implements UserDetails, CredentialsContainer {
         this.fullName = fullName;
     }
 
-    public void setEmail(String email) {
+    public void setEmail(@Email String email) {
         this.email = email;
     }
 
@@ -95,7 +114,24 @@ public class UserNew implements UserDetails, CredentialsContainer {
         this.username = username;
     }
 
-    @Override
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public boolean getEnabled(){
+        return enabled;
+    }
+
+    public void setToken(boolean expired) {
+        this.tokenExpired = expired;
+    }
+
+    public boolean getTokenExpired(){
+        return tokenExpired;
+    }
+
+
+    /*@Override
     public Collection <? extends GrantedAuthority> getAuthorities(){
         return authorities;
     }
@@ -123,11 +159,7 @@ public class UserNew implements UserDetails, CredentialsContainer {
         return enabled;
     }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
     public void eraseCredentials(){
 
-    }
+    }*/
 }
