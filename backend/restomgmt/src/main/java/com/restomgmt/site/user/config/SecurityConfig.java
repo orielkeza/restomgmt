@@ -1,36 +1,55 @@
 package com.restomgmt.site.user.config;
 
+import com.restomgmt.site.user.filter.JwtRequestFilter;
 import com.restomgmt.site.user.security.AuthenticationService;
 import com.restomgmt.site.user.util.JwtUtil;
 
+
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
-
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
     
     private final AuthenticationService authenticationService;
 
     private final JwtUtil jwtUtil;
+
+    private final JwtRequestFilter jwtAuthFilter;
+
+    //decoupled property extractions from application.properties to avoid hardcoding
+    @Value("${security.public-urls}")
+    private String[] publicUrls;
+
+    @Value("${app.cors.allowed-origins}")
+    private String allowedOrigin;
+
+    @Value("${security.role-hierarchy}")
+    private String rawRoleHierarchy;
 
     @Bean 
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
@@ -42,7 +61,6 @@ public class SecurityConfig {
                 .passwordEncoder(passwordEncoder());
 
             return authenticationManagerBuilder.build();
-       
     }
 
     @Bean
@@ -52,34 +70,39 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(auth -> auth
-            .requestMatchers("/", "/home", "/register","/css/**.css.", "/js/**").permitAll()
-            .anyRequest().authenticated())
-            .formLogin(config-> config.loginPage("/login").permitAll())
-            .logout(LogoutConfigurer::permitAll)
-            .expressionHandler(webSecurityExpressionHandler())
-            .antMatchers(HttpMethod.GET, "/roleHierarchy")
-            .hasRole("STAFF")
-            .hasRole("ADMIN")
-            .hasRole("USER");
+        http
+            .authorizeHttpRequests(auth->auth
+                .requestMatchers(publicUrls).permitAll()
+                .anyRequest().authenticated()
+            )
+            .sessionManagement(session->session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+            .csrf(AbstractHttpConfigurer::disable)
+            .cors(cors->cors.configurationSource(corsConfigurationSource()));
+            
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true);
+        config.setAllowedOrigins(List.of(allowedOrigin));//see .env
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
     }
 
     //has to do with the permissions stuff, might be moved later
     @Bean
     public RoleHierarchy roleHierarchy() {
-        RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
-        String hierarchy = "ROLE_ADMIN > ROLE_STAFF \n ROLE_STAFF > ROLE_USER";
-        roleHierarchy.setHierarchy(hierarchy);
-        return roleHierarchy;
-    }
-
-    @Bean
-    public DefaultWebSecurityExpressionHandler customWebSecurityExpressionHandler() {
-        DefaultWebSecurityExpressionHandler expressionHandler = new DefaultWebSecurityExpressionHandler();
-        expressionHandler.setRoleHierarchy(roleHierarchy());
-        return expressionHandler;
+        return RoleHierarchyImpl.fromHierarchy(rawRoleHierarchy);
     }
 }
 

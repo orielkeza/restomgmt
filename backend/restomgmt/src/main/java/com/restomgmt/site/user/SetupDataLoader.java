@@ -53,8 +53,8 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
         List<Permission> adminPermissions = Arrays.asList(
             readPermission, writePermission
         );
-        createRoleIfNotFound("ROLE_ADMIN", adminPermissions);
-        createRoleIfNotFound("ROLE_USER", Arrays.asList(readPermission));
+        createRoleIfNotFound("ROLE_ADMIN", adminPermissions, null);
+        createRoleIfNotFound("ROLE_USER", Arrays.asList(readPermission), null);
 
         Role adminRole = roleRepository.findByName("ROLE_ADMIN");
         User user = new User();
@@ -62,7 +62,7 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
         user.setPassword(passwordEncoder.encode("testpassword"));
         user.setEmail("test@test.com");
         user.setEnabled(true);
-        user.setToken(false);
+        user.setTokenExpired(false);
         user.setUsername("testUsername");
     }
 
@@ -70,7 +70,8 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
     Permission createPermissionIfNotFound(String name) {
         Permission permission = permissionRepository.findByName(name);
         if(permission == null) {
-            permission = new Permission(name);
+            permission = new Permission();
+            permission.setName(name);
             permissionRepository.save(permission);
         }
         return permission;
@@ -78,11 +79,11 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
 
     @Transactional
     Role createRoleIfNotFound(
-        String name, Collection<Permission> permissions) {
+        String name, Collection<Permission> permissions, Collection<User> users) {
 
             Role role = roleRepository.findByName(name);
             if(role == null) {
-                role = new Role(name);
+                role = new Role();
                 role.setPermissions(permissions);
                 roleRepository.save(role);
             }
