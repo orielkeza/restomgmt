@@ -50,10 +50,6 @@ public class AuthenticationService implements UserDetailsService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userNewRepository.save(user);
     }
-
-
-    //has to do with the permissions stuff, might be moved later
-
 }
 
 /*public UserNew signup(RegisterUserDto input) {
