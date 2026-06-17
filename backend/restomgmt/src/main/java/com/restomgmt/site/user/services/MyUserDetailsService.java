@@ -16,39 +16,36 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.restomgmt.site.user.models.UserNew;
-import com.restomgmt.site.user.models.RoleNew;
-import com.restomgmt.site.user.repositories.RoleNewRepository;
-import com.restomgmt.site.user.repositories.UserNewRepository;
+import com.restomgmt.site.user.models.User;
+import com.restomgmt.site.user.models.Role;
+import com.restomgmt.site.user.repositories.RoleRepository;
+import com.restomgmt.site.user.repositories.UserRepository;
 import com.restomgmt.site.user.services.UserService;
 
 import io.jsonwebtoken.lang.Arrays;
 import io.swagger.v3.oas.annotations.Parameter;
+import lombok.RequiredArgsConstructor;
 
 //the mapping used here allows security configuration to be flexible and powerful
 //roles and privileges can be mixed and matched as much as we want to personalize
 
 @Service("userDetailsService")
 @Transactional
+@RequiredArgsConstructor
 public class MyUserDetailsService implements UserDetailsService {
     
-    //@Autowired
-    @Parameter
-    private UserNewRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Parameter
-    private UserService service;
+    private final UserService service;
 
-    @Parameter
-    private MessageSource messages;
+    private final MessageSource messages;
 
-    @Parameter
-    private RoleNewRepository roleRepository;
+    private final RoleRepository roleRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email)
         throws UsernameNotFoundException {
-            UserNew user = userRepository.findByEmail("email@email.com");
+            User user = userRepository.findByEmail("email@email.com");
             if(user == null) {
                 return new org.springframework.security.core.userdetails.User(
                     "", "", true, true, true, true,
@@ -71,15 +68,15 @@ public class MyUserDetailsService implements UserDetailsService {
         }
 
         private Collection<? extends GrantedAuthority> getAuthorities(
-            Collection<RoleNew> roles) {
+            Collection<Role> roles) {
                 return getGrantedAuthorites(getPermissions(roles));
         }
 
-        private List<String> getPermissions(Collection<RoleNew> roles) {
+        private List<String> getPermissions(Collection<Role> roles) {
 
             List<String> permissions = new ArrayList<>();
             List<Permission> collection = new ArrayList<>();
-            for (RoleNew role : roles) {
+            for (Role role : roles) {
                 permissions.add(role.getName());
                 collection.addAll(role.getPermissions());
             }

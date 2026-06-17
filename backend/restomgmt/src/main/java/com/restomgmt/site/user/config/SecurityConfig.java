@@ -2,6 +2,9 @@ package com.restomgmt.site.user.config;
 
 import com.restomgmt.site.user.security.AuthenticationService;
 import com.restomgmt.site.user.util.JwtUtil;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,18 +25,24 @@ import org.springframework.security.web.access.expression.DefaultWebSecurityExpr
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
     
-    @Autowired
-    private AuthenticationService authenticationService;
+    private final AuthenticationService authenticationService;
 
-    @Autowired
-    private JwtUtil jwtUtil;
+    private final JwtUtil jwtUtil;
 
-    @Autowired 
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(authenticationService)
-            .passwordEncoder(passwordEncoder());
+    @Bean 
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+        AuthenticationManagerBuilder authenticationManagerBuilder =
+            http.getSharedObject(AuthenticationManagerBuilder.class);
+        
+            authenticationManagerBuilder
+                .userDetailsService(authenticationService)
+                .passwordEncoder(passwordEncoder());
+
+            return authenticationManagerBuilder.build();
+       
     }
 
     @Bean

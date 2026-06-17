@@ -1,9 +1,11 @@
 package com.restomgmt.site.user.security;
 
-import com.restomgmt.site.user.models.UserNew;
-import com.restomgmt.site.user.repositories.UserNewRepository;
+import com.restomgmt.site.user.models.User;
+import com.restomgmt.site.user.repositories.UserRepository;
 import com.restomgmt.site.user.util.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
@@ -17,19 +19,16 @@ import java.util.ArrayList;
 
 import javax.management.relation.Role;
 
+@RequiredArgsConstructor
 public class AuthenticationService implements UserDetailsService {
     
-    @Autowired
-    private UserNewRepository userNewRepository;
+    private final UserRepository userNewRepository;
 
-    @Autowired 
-    private JwtUtil jwtUtil;
+    private final JwtUtil jwtUtil;
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     public String authenticate(String username, String password) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
@@ -39,14 +38,14 @@ public class AuthenticationService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserNew user = userNewRepository.findByUsername(username)
+        User user = userNewRepository.findByUsername(username)
                         .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         return new org.springframework.security.core.userdetails.User(user.getUsername(),
                                                                       user.getPassword(),
                                                                       new ArrayList<>());
     }
 
-    public UserNew registerUser (UserNew user) {
+    public User registerUser (User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userNewRepository.save(user);
     }

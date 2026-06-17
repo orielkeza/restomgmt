@@ -1,6 +1,6 @@
 package com.restomgmt.site.user.repositories;
 
-import com.restomgmt.site.user.models.RoleNew;
+import com.restomgmt.site.user.models.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 //import java.util.Optional;
 
 @Repository
-public interface RoleNewRepository extends JpaRepository <RoleNew, Long> {
-    RoleNew findByName(String name);
+public interface RoleRepository extends JpaRepository <Role, Long> {
+    Role findByName(String name);
 }

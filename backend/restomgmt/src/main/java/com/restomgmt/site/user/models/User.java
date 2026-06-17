@@ -14,11 +14,19 @@ import java.util.Collection;
 //import java.util.Objects;
 
 import jakarta.validation.constraints.Email;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
 //@Table(name = "users")
 //public class UserNew implements UserDetails, CredentialsContainer {
-public class UserNew {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -50,30 +58,10 @@ public class UserNew {
             name = "role_id", referencedColumnName ="id"
         )
     )
-    private Collection<RoleNew> roles;
+    private Collection<Role> roles;
 
-    public UserNew () {}
-
-    public UserNew (String fullName,
-                    String email,
-                    String username,
-                    String password //in case of passkeys
-                    )
-    {
-        this.fullName = fullName;
-        this.email = email;
-        this.username = username;
-        this.password = password;
-        this.enabled = true;
-        this.tokenExpired = false;
-        //this.accountNonExpired = true;
-        //this.credentialsNonExpired = true;
-        //this.accountNonLocked = true;
-        //this.authorities = authorities;
-    }
-
-    //getters and setters
-
+    //getters and setters no longer necessary with lombok and constructor injection
+    /*
     public Long getId () {
         return id;
     }
@@ -129,8 +117,9 @@ public class UserNew {
     public boolean getTokenExpired(){
         return tokenExpired;
     }
-
-    public Collection<RoleNew> getRoles(){
+    */
+   
+    public Collection<Role> getRoles(){
         return roles;
     }
 //not too sure how this plays into it all

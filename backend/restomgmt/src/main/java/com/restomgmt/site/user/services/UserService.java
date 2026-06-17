@@ -1,37 +1,37 @@
 package com.restomgmt.site.user.services;
 
-import com.restomgmt.site.user.models.UserNew;
-import com.restomgmt.site.user.repositories.UserNewRepository;
+import com.restomgmt.site.user.models.User;
+import com.restomgmt.site.user.repositories.UserRepository;
 
-import io.swagger.v3.oas.annotations.Parameter;
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
-    //@Autowired
-    @Parameter
-    private UserNewRepository userRepository;
+    
+    private final UserRepository userRepository;
 
-    public UserNew addUser (UserNew user) {
+    public User addUser (User user) {
         return userRepository.save(user);
     }
 
-    public List<UserNew> getAllUsers() {
+    public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    public Optional<UserNew> findUserById(Long id) {
+    public Optional<User> findUserById(Long id) {
         return Optional.ofNullable(userRepository.getReferenceById(id));
     }
 
-    public void deleteUser(UserNew user) {
+    public void deleteUser(User user) {
         userRepository.delete(user);
     }
 
-    public void updateUser(UserNew user) {
+    public void updateUser(User user) {
         userRepository.save(user);
     }
 }

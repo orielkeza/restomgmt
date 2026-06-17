@@ -1,6 +1,6 @@
 package com.restomgmt.site.user.repositories;
 
-import com.restomgmt.site.user.models.UserNew;
+import com.restomgmt.site.user.models.User;
 
 import jakarta.validation.constraints.Email;
 
@@ -11,8 +11,8 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface UserNewRepository extends JpaRepository <UserNew, Long> {
-    Optional<UserNew> findByUsername(String username);
+public interface UserRepository extends JpaRepository <User, Long> {
+    Optional<User> findByUsername(String username);
 
-    UserNew findByEmail(@Email String email);
+    User findByEmail(@Email String email);
 }

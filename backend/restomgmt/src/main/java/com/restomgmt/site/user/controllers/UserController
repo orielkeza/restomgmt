@@ -8,9 +8,10 @@ import org.springframework.*;
 import java.util.List;
 
 @RestController
+@RequiredArgsContructor
 public class UserController {
-    @Autowired
-    private UserService userService;
+
+    private final UserService userService;
 
     @GetMapping("/")
     public ResponseEntity<List<User>> getAllEmployees() {
@@ -37,6 +38,4 @@ public class UserController {
     @PutMapping("/")
 
     @PostMapping("/")
-
-
 }

@@ -5,14 +5,12 @@ import java.util.*;
 
 //import org.springframework.beans.factory.annotation.Autowired;
 
-import com.restomgmt.site.user.models.UserNew;
-import com.restomgmt.site.user.models.RoleNew;
-import com.restomgmt.site.user.repositories.UserNewRepository;
+import com.restomgmt.site.user.models.User;
+import com.restomgmt.site.user.models.Role;
+import com.restomgmt.site.user.repositories.UserRepository;
 import com.restomgmt.site.user.permission.Permission;
 
-import io.swagger.v3.oas.annotations.Parameter;
-
-import com.restomgmt.site.user.repositories.RoleNewRepository;
+import com.restomgmt.site.user.repositories.RoleRepository;
 import com.restomgmt.site.user.repositories.PermissionRepository;
 
 import org.springframework.stereotype.Component;
@@ -22,32 +20,24 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 //import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
 //this does the setup
 //creates the permissions, then the roles, assign permissions to roles, then create users and assign a role to them
 //alreadySetup flag first checks if the setup needs to be run
 
 @Component
+@RequiredArgsConstructor
 public class SetupDataLoader implements ApplicationListener<ContextRefreshedEvent> {
     boolean alreadySetup = false;
 
-    //parameter instead of autowired is better for testing, makes dependencies clearer
+    private final UserRepository userRepository;
 
-    //@Autowired
-    @Parameter
-    private UserNewRepository userRepository;
+    private final RoleRepository roleRepository;
 
-    //@Autowired
-    @Parameter
-    private RoleNewRepository roleRepository;
+    private final PermissionRepository permissionRepository;
 
-    //@Autowired 
-    @Parameter
-    private PermissionRepository permissionRepository;
-
-    //@Autowired 
-    @Parameter
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
@@ -66,8 +56,8 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
         createRoleIfNotFound("ROLE_ADMIN", adminPermissions);
         createRoleIfNotFound("ROLE_USER", Arrays.asList(readPermission));
 
-        RoleNew adminRole = roleRepository.findByName("ROLE_ADMIN");
-        UserNew user = new UserNew();
+        Role adminRole = roleRepository.findByName("ROLE_ADMIN");
+        User user = new User();
         user.setFullName("Test Tester");
         user.setPassword(passwordEncoder.encode("testpassword"));
         user.setEmail("test@test.com");
@@ -87,12 +77,12 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
     }
 
     @Transactional
-    RoleNew createRoleIfNotFound(
+    Role createRoleIfNotFound(
         String name, Collection<Permission> permissions) {
 
-            RoleNew role = roleRepository.findByName(name);
+            Role role = roleRepository.findByName(name);
             if(role == null) {
-                role = new RoleNew(name);
+                role = new Role(name);
                 role.setPermissions(permissions);
                 roleRepository.save(role);
             }
