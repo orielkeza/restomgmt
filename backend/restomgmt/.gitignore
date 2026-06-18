@@ -35,4 +35,4 @@ build/
 .env
 
 ##profile management, ignore local dev
-!**/src/main/resources/application-dev.properties
+!**/src/main/resources/application-dev.properties/
