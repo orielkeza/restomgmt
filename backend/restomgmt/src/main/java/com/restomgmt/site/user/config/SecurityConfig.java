@@ -2,7 +2,7 @@ package com.restomgmt.site.user.config;
 
 import com.restomgmt.site.user.filter.JwtRequestFilter;
 import com.restomgmt.site.user.security.AuthenticationService;
-import com.restomgmt.site.user.util.JwtUtil;
+//import com.restomgmt.site.user.util.JwtUtil;
 
 
 import lombok.RequiredArgsConstructor;
@@ -12,6 +12,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -33,11 +34,12 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
+@Profile("!test")
 public class SecurityConfig {
     
     private final AuthenticationService authenticationService;
 
-    private final JwtUtil jwtUtil;
+    //private final JwtUtil jwtUtil;
 
     private final JwtRequestFilter jwtAuthFilter;
 
