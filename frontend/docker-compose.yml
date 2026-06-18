@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./restomgmtReact
+      dockerfile: Dockerfile
+    container_name: resto_frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - resto-network
+
+  backend:
+    # Reference to backend service from the backend compose file
+    # In a typical setup, this would run from backend/docker-compose.yml
+    # For this to work, ensure backend services are already running
+    image: resto-backend:latest
+    container_name: resto_backend
+    ports:
+      - "8080:8080"
+    networks:
+      - resto-network
+
+networks:
+  resto-network:
+    driver: bridge
+
