@@ -1,22 +1,55 @@
-#version: '3.8'
+version: '3.8'
 
 services:
+  backend:
+    build:
+      context: ./restomgmt
+      dockerfile: Dockerfile
+    container_name: resto_backend
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${DB_NAME}
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      SPRING_DATA_MONGODB_URI: mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017/${MONGO_DB_NAME}?authSource=admin
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_USERNAME: ${RABBITMQ_USERNAME}
+      SPRING_RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      - postgres
+      - mongodb
+      - rabbitmq
+    networks:
+      - resto-network
+    volumes:
+      - ./restomgmt/logs:/app/logs
 
   postgres:
-    image: postgres:15
+    image: postgres:15-alpine
     container_name: resto_postgres
     restart: always
     environment:
-      POSTGRES_DB: resto_db
+      POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - resto-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   mongodb:
-    image: mongo:6
+    image: mongo:6-alpine
     container_name: resto_mongodb
     restart: always
     environment:
@@ -27,25 +60,39 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+    networks:
+      - resto-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   rabbitmq:
-    image: rabbitmq:3-management
+    image: rabbitmq:3.13-management-alpine
     container_name: resto_rabbitmq
     restart: always
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
     ports:
-      - "5672:5672"   # app connects here
-      - "15672:15672" # browser dashboard
+      - "5672:5672"
+      - "15672:15672"
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - resto-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:
   mongo_data:
   rabbitmq_data:
 
-environment:
-  - SPRING_PROFILES_ACTIVE=prod
-  - DB_URL=jdbc:postgresql://db:5432/restomgmt
+networks:
+  resto-network:
+    driver: bridge
