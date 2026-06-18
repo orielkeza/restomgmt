@@ -45,3 +45,7 @@ volumes:
   postgres_data:
   mongo_data:
   rabbitmq_data:
+
+environment:
+  - SPRING_PROFILES_ACTIVE=prod
+  - DB_URL=jdbc:postgresql://db:5432/restomgmt
