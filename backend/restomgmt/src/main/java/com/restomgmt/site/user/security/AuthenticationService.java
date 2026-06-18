@@ -6,9 +6,6 @@ import com.restomgmt.site.user.util.JwtUtil;
 
 import lombok.RequiredArgsConstructor;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
-import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.*;
@@ -16,8 +13,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 //import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-
-import javax.management.relation.Role;
 
 @RequiredArgsConstructor
 public class AuthenticationService implements UserDetailsService {

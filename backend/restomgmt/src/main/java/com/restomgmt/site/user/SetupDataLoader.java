@@ -7,7 +7,6 @@ import java.util.*;
 
 import com.restomgmt.site.user.models.User;
 import com.restomgmt.site.user.models.Role;
-import com.restomgmt.site.user.repositories.UserRepository;
 import com.restomgmt.site.user.permission.Permission;
 
 import com.restomgmt.site.user.repositories.RoleRepository;
@@ -31,7 +30,7 @@ import lombok.RequiredArgsConstructor;
 public class SetupDataLoader implements ApplicationListener<ContextRefreshedEvent> {
     boolean alreadySetup = false;
 
-    private final UserRepository userRepository;
+    //private final UserRepository userRepository;
 
     private final RoleRepository roleRepository;
 
@@ -56,7 +55,7 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
         createRoleIfNotFound("ROLE_ADMIN", adminPermissions, null);
         createRoleIfNotFound("ROLE_USER", Arrays.asList(readPermission), null);
 
-        Role adminRole = roleRepository.findByName("ROLE_ADMIN");
+        //Role adminRole = roleRepository.findByName("ROLE_ADMIN");
         User user = new User();
         user.setFullName("Test Tester");
         user.setPassword(passwordEncoder.encode("testpassword"));
