@@ -1,4 +1,4 @@
-package com.restomgmt.site.user.services;
+/*package com.restomgmt.site.user.services;
 
 import java.security.Permission;
 import java.util.ArrayList;
@@ -87,3 +87,4 @@ public class MyUserDetailsService implements UserDetailsService {
         }
 
 }
+*/
