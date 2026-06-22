@@ -10,6 +10,7 @@ import lombok.ToString;
 
 import java.util.Collection;
 
+@Entity
 @Getter
 @Setter
 @NoArgsConstructor
