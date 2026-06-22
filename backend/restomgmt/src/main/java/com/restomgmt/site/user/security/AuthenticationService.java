@@ -8,12 +8,15 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
-//import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
+@Service
 @RequiredArgsConstructor
 public class AuthenticationService implements UserDetailsService {
     
@@ -37,7 +40,10 @@ public class AuthenticationService implements UserDetailsService {
                         .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         return new org.springframework.security.core.userdetails.User(user.getUsername(),
                                                                       user.getPassword(),
-                                                                      new ArrayList<>());
+                                                                      user.getRoles().stream()
+                                                                                     .map(r -> new SimpleGrantedAuthority(r.getName()))
+                                                                                     .collect(Collectors.toList())
+                                                                      );
     }
 
     public User registerUser (User user) {

@@ -22,12 +22,13 @@ import com.restomgmt.site.user.permission.Permission;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-//@Table(name = "roles")
+@Table(name = "roles")
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false)
     private String name;
 
     @ManyToMany(mappedBy = "roles")

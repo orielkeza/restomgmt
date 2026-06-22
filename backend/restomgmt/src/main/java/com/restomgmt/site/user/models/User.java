@@ -30,15 +30,18 @@ import lombok.ToString;
 //public class UserNew implements UserDetails, CredentialsContainer {
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String fullName;
-    private String email;
+    private Email email;
     private String password;
+    
+    @Column(unique = true, nullable = false)
     private String username;
-    private boolean enabled;
-    private boolean tokenExpired;
+
+    private Boolean enabled;
+    private Boolean tokenExpired;
     //private Boolean accountNonExpired;
     //private Boolean credentialsNonExpired;
     //private Boolean accountNonLocked;
@@ -120,10 +123,6 @@ public class User {
         return tokenExpired;
     }
     */
-   
-    public Collection<Role> getRoles(){
-        return roles;
-    }
 //not too sure how this plays into it all
 /* @Override
 public User registerNewUserAccount(UserDto accountDto) throws EmailExistsException {

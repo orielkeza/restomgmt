@@ -1,5 +1,6 @@
 package com.restomgmt.site.user;
 
+import com.restomgmt.site.user.repositories.UserRepository;
 import java.util.*;
 //import jakarta.persistence.*;
 
@@ -28,6 +29,8 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class SetupDataLoader implements ApplicationListener<ContextRefreshedEvent> {
+    private final UserRepository userRepository;
+
     boolean alreadySetup = false;
 
     //private final UserRepository userRepository;
@@ -37,6 +40,10 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
     private final PermissionRepository permissionRepository;
 
     private final PasswordEncoder passwordEncoder;
+
+    SetupDataLoader(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     @Transactional
@@ -63,6 +70,7 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
         user.setEnabled(true);
         user.setTokenExpired(false);
         user.setUsername("testUsername");
+        userRepository.save(user);
     }
 
     @Transactional
@@ -83,6 +91,7 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
             Role role = roleRepository.findByName(name);
             if(role == null) {
                 role = new Role();
+                role.setName(name);
                 role.setPermissions(permissions);
                 roleRepository.save(role);
             }
