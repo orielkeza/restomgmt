@@ -4,29 +4,39 @@ import com.restomgmt.site.user.models.User;
 import com.restomgmt.site.user.repositories.UserRepository;
 import com.restomgmt.site.user.util.JwtUtil;
 
-import lombok.RequiredArgsConstructor;
-
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class AuthenticationService implements UserDetailsService {
     
-    private final UserRepository userNewRepository;
+    private final UserRepository userRepository;
 
     private final JwtUtil jwtUtil;
 
+    @Lazy
     private final AuthenticationManager authenticationManager;
 
     private final PasswordEncoder passwordEncoder;
+
+    public AuthenticationService(UserRepository userRepository,
+                                        JwtUtil jwtUtil,
+                                        @Lazy AuthenticationManager authenticationManager,
+                                        PasswordEncoder passwordEncoder){                   
+        this.userRepository=userRepository;
+        this.jwtUtil=jwtUtil;
+        this.authenticationManager=authenticationManager;
+        this.passwordEncoder=passwordEncoder;
+    }
 
     public String authenticate(String username, String password) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
@@ -36,35 +46,18 @@ public class AuthenticationService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userNewRepository.findByUsername(username)
+        User user = userRepository.findByUsername(username)
                         .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        List<GrantedAuthority> authorities = user.getRoles().stream()
+                                                 .map(r -> new SimpleGrantedAuthority(r.getName()))
+                                                 .collect(Collectors.toList());
         return new org.springframework.security.core.userdetails.User(user.getUsername(),
                                                                       user.getPassword(),
-                                                                      user.getRoles().stream()
-                                                                                     .map(r -> new SimpleGrantedAuthority(r.getName()))
-                                                                                     .collect(Collectors.toList())
-                                                                      );
+                                                                      authorities);
     }
 
     public User registerUser (User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userNewRepository.save(user);
+        return userRepository.save(user);
     }
 }
-
-/*public UserNew signup(RegisterUserDto input) {
-    Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
-
-    if (optionalRole.isEmpty()) {
-        return null;
-    }
-
-    var user = new UserNew ()
-        .setFullName(input.getFullName())
-        .setEmail(input.getEmail())
-        .setPassword(passwordEncoder.encode(input.getPassword())) //this is bcencrypting
-        .setRole(optionalRole.get());
-
-        return userNewRepository.save(user);
-    }
-*/

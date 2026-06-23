@@ -5,7 +5,9 @@ import com.restomgmt.site.user.security.AuthenticationService;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,12 +19,18 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody User user) {
-        String token = authenticationService.authenticate(user.getUsername(), user.getPassword());
-        return ResponseEntity.ok(token);
+        try {
+            String token = authenticationService.authenticate(user.getUsername(), user.getPassword());
+            return ResponseEntity.ok(token);
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+        }
     }
 
     @PostMapping("/register") 
     public ResponseEntity<?> registerUser(@RequestBody User user) {
-        return ResponseEntity.ok(authenticationService.registerUser(user));
+        //this is a no go because this returns a raw user including the hashed password which is a risk
+        //return ResponseEntity.ok(authenticationService.registerUser(user));
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

@@ -4,6 +4,8 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -16,7 +18,11 @@ import javax.crypto.SecretKey;
 @Component
 public class JwtUtil {
     //this is the signing key, should not be hardcoded used env vars
-    private String secret = "secret";
+    @Value("${security.jwt.secret}")
+    private String secret;
+
+    @Value("${security.jwt.expiration-ms}")
+    private long expirationMs;
 
 
     //generic helper function that decodes the token into a claims object the applies what extrator was passed by type, <T> means it works for nay return type
@@ -62,7 +68,7 @@ public class JwtUtil {
         return Jwts.builder().claims(claims)
                              .subject(subject)
                              .issuedAt(new Date(System.currentTimeMillis()))
-                             .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
+                             .expiration(new Date(System.currentTimeMillis() + expirationMs))
                              //.signWith(SignatureAlgorithm.HS256, secret)
                              .signWith(Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)))
                              .compact();

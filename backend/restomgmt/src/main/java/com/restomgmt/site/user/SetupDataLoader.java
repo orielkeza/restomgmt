@@ -29,21 +29,16 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class SetupDataLoader implements ApplicationListener<ContextRefreshedEvent> {
-    private final UserRepository userRepository;
 
     boolean alreadySetup = false;
 
-    //private final UserRepository userRepository;
+    private final UserRepository userRepository;
 
     private final RoleRepository roleRepository;
 
     private final PermissionRepository permissionRepository;
 
     private final PasswordEncoder passwordEncoder;
-
-    SetupDataLoader(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     @Override
     @Transactional
@@ -62,15 +57,20 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
         createRoleIfNotFound("ROLE_ADMIN", adminPermissions, null);
         createRoleIfNotFound("ROLE_USER", Arrays.asList(readPermission), null);
 
-        //Role adminRole = roleRepository.findByName("ROLE_ADMIN");
-        User user = new User();
-        user.setFullName("Test Tester");
-        user.setPassword(passwordEncoder.encode("testpassword"));
-        user.setEmail("test@test.com");
-        user.setEnabled(true);
-        user.setTokenExpired(false);
-        user.setUsername("testUsername");
-        userRepository.save(user);
+        Role adminRole = roleRepository.findByName("ROLE_ADMIN");
+        if(userRepository.findByUsername("testUsername").isEmpty()) {
+            User user = new User();
+            user.setFullName("Test Tester");
+            user.setPassword(passwordEncoder.encode("testpassword"));
+            user.setEmail("test@test.com");
+            user.setEnabled(true);
+            user.setTokenExpired(false);
+            user.setUsername("testUsername");
+            user.setRoles(List.of(adminRole));
+            userRepository.save(user);
+        }
+
+        alreadySetup=true;
     }
 
     @Transactional
