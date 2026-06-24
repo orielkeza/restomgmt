@@ -1,20 +1,12 @@
 package com.restomgmt.site.user.models;
 
-//import java.time.LocalDate;
 import jakarta.persistence.*;
 
-//to extend to userdetails
-//import org.springframework.security.core.userdetails.UserDetails;
-//import org.springframework.security.core.GrantedAuthority;
-//import org.springframework.security.core.authority.SimpleGrantedAuthority;
-//import org.springframework.security.core.CredentialsContainer;
-
 import java.util.Collection;
-//import java.util.List;
-//import java.util.Objects;
 
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,6 +15,7 @@ import lombok.ToString;
 @Entity
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
