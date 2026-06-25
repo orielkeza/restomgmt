@@ -33,7 +33,7 @@ import lombok.RequiredArgsConstructor;
 @WebMvcTest
 @ExtendWith(MockitoExtension.class)
 @RequiredArgsConstructor
-public class UserControllerTest {
+class UserControllerTest {
     
     private final MockMvc mockMvc;
 
