@@ -2,12 +2,14 @@ package com.restomgmt.site.user.controllers;
 
 import lombok.RequiredArgsConstructor;
 
-import com.restomgmt.site.user.models.User;
+import com.restomgmt.site.user.dto.UserResponse;
+import com.restomgmt.site.user.dto.UserUpdateRequest;
 import com.restomgmt.site.user.services.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,12 +19,12 @@ public class UserController {
 
     //fetch all students with endpoint
     @GetMapping("/users/")
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<UserResponse>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
         return userService.findUserById(id)
                           .map(ResponseEntity::ok)
                           .orElse(ResponseEntity.notFound().build());
@@ -30,14 +32,21 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
-        userService.findUserById(id).ifPresent(userService::deleteUser);
-        return ResponseEntity.noContent().build();
+        try {
+            userService.deleteUser(id);
+            return ResponseEntity.noContent().build();
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateUser(@PathVariable Long id, @RequestBody User user){
-        userService.findUserById(id).ifPresent(userService::updateUser);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody UserUpdateRequest request){
+        try {
+            return ResponseEntity.ok(userService.updateUser(id, request));
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
 }

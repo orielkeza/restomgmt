@@ -2,6 +2,7 @@ package com.restomgmt.site.user.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,9 +14,10 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -23,25 +25,33 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import com.restomgmt.site.user.controllers.UserController;
+import com.restomgmt.site.user.dto.UserResponse;
+import com.restomgmt.site.user.dto.UserUpdateRequest;
 import com.restomgmt.site.user.models.Role;
-import com.restomgmt.site.user.models.User;
-import com.restomgmt.site.user.repositories.RoleRepository;
+import com.restomgmt.site.user.security.AuthenticationService;
 import com.restomgmt.site.user.services.UserService;
+import com.restomgmt.site.user.util.JwtUtil;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 
-@WebMvcTest
+
+@WebMvcTest(UserController.class)
+@ActiveProfiles("uat")
 @ExtendWith(MockitoExtension.class)
-@RequiredArgsConstructor
 class UserControllerTest {
     
-    private final MockMvc mockMvc;
+    @Autowired
+    private MockMvc mockMvc;
 
     @MockitoBean
     private UserService userService;
 
-    @Mock
-    private RoleRepository roleRepository;
+    @MockitoBean
+    private JwtUtil jwtUtil;
+
+    @MockitoBean
+    private AuthenticationService authenticationService;
 
     private Role adminRole;
     private Role staffRole;
@@ -60,14 +70,14 @@ class UserControllerTest {
 
     @Test
     public void testGetUserById () throws Exception {
-        User user = User.builder()
+        UserResponse user = UserResponse.builder()
                         .email("john.doe@gmail.com")
                         .enabled(true)
                         .fullName("John Doe")
-                        .password("*jjehcH.03")
-                        .tokenExpired(false)
+                        //.password("*jjehcH.03")
+                        //.tokenExpired(false)
                         .username("theJohnD")
-                        .roles(List.of(adminRole))
+                        //.roles(List.of(adminRole))
                         .build();
         ReflectionTestUtils.setField(user, "id", 1L);
                 
@@ -80,110 +90,108 @@ class UserControllerTest {
         .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1))
         .andExpect(MockMvcResultMatchers.jsonPath("$.email").value("john.doe@gmail.com"))
         .andExpect(MockMvcResultMatchers.jsonPath("$.fullName").value("John Doe"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.password").value("*jjehcH.03"))
         .andExpect(MockMvcResultMatchers.jsonPath("$.username").value("theJohnD"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.enabled").value("true"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.tokenExpired").value("false"));
-        verify(userService).addUser(any());
+        .andExpect(MockMvcResultMatchers.jsonPath("$.enabled").value(true));
+        verify(userService).findUserById(1L);
     }
 
     @Test 
     public void testGetAllUsers() throws Exception {
-        List<User> users = new ArrayList<>();
+        List<UserResponse> users = new ArrayList<>();
         
-        users.add(User.builder()
+        users.add(UserResponse.builder()
                         .email("john.doe@gmail.com")
                         .enabled(true)
                         .fullName("John Doe")
-                        .password("*jjehcH.03")
-                        .tokenExpired(false)
+                        //.password("*jjehcH.03")
+                        //.tokenExpired(false)
                         .username("theJohnD")
-                        .roles(List.of(adminRole))
+                        //.roles(List.of(adminRole))
                         .build());
         ReflectionTestUtils.setField(users.get(0), "id", 1L);
                 
         assertEquals(1L, users.get(0).getId());
 
-        users.add(User.builder()
+        users.add(UserResponse.builder()
                         .email("jane.doe@gmail.com")
                         .enabled(true)
                         .fullName("Jane Doe")
-                        .password("*jjKKcH.03")
-                        .tokenExpired(false)
+                        //.password("*jjKKcH.03")
+                        //.tokenExpired(false)
                         .username("JaneD")
-                        .roles(List.of(adminRole))
+                        //.roles(List.of(adminRole))
                         .build());
         ReflectionTestUtils.setField(users.get(1), "id", 2L);
                 
         assertEquals(2L, users.get(1).getId());
 
-        when(userService.findUserById(1L)).thenReturn(Optional.of(users.get(0)));
+        when(userService.getAllUsers()).thenReturn(users);
         mockMvc.perform(MockMvcRequestBuilders.get("/users/"))
         .andDo(MockMvcResultHandlers.print())
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.jsonPath("$[1].id").value(2))
         .andExpect(MockMvcResultMatchers.jsonPath("$[1].email").value("jane.doe@gmail.com"))
         .andExpect(MockMvcResultMatchers.jsonPath("$[1].fullName").value("Jane Doe"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[1].password").value("*jjKKcH.03"))
         .andExpect(MockMvcResultMatchers.jsonPath("$[1].username").value("JaneD"))
         .andExpect(MockMvcResultMatchers.jsonPath("$[1].enabled").value("true"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[1].tokenExpired").value("false"))
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value(1))
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].email").value("john.doe@gmail.com"))
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].fullName").value("John Doe"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].password").value("*jjehcH.03"))
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].username").value("theJohnD"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].enabled").value("true"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[0].tokenExpired").value("false"));
+        .andExpect(MockMvcResultMatchers.jsonPath("$[0].enabled").value(true));
     }
 
     @Test
-    public void testDeleteUser() {
-        User user = User.builder()
+    public void testDeleteUser () throws Exception {
+        UserResponse user = UserResponse.builder()
                         .email("john.doe@gmail.com")
                         .enabled(true)
                         .fullName("John Doe")
-                        .password("*jjehcH.03")
-                        .tokenExpired(false)
+                        //.password("*jjehcH.03")
+                        //.tokenExpired(false)
                         .username("theJohnD")
-                        .roles(List.of(adminRole))
+                        //.roles(List.of(adminRole))
                         .build();
         ReflectionTestUtils.setField(user, "id", 1L);
                 
         assertEquals(1L, user.getId());
 
-        doNothing().when(userService).deleteUser(user);
+        doNothing().when(userService).deleteUser(1L);
         when(userService.findUserById(1L)).thenReturn(Optional.of(user));
-        mockMvc.perform(MockMvcRequestBuilders.delete("/1L"))
-        .andExpect(MockMvcResultMatchers.status().isOk());
-        verify(userService).deleteUser(user);
+        mockMvc.perform(MockMvcRequestBuilders.delete("/1"))
+        .andExpect(MockMvcResultMatchers.status().isNoContent());
+        verify(userService).deleteUser(1L);
     }
 
-    @Test
-    public void testUpdateUser() {
 
-        User user = User.builder()
+    @Test
+    public void testUpdateUser() throws Exception {
+        UserResponse user = UserResponse.builder()
                         .email("john.doe@gmail.com")
                         .enabled(true)
                         .fullName("John Doe")
-                        .password("*jjehcH.03")
-                        .tokenExpired(false)
                         .username("theJohnD")
-                        .roles(List.of(adminRole))
                         .build();
         ReflectionTestUtils.setField(user, "id", 1L);
                 
         assertEquals(1L, user.getId());
-
-        when(userService.updateUser(user)).thenReturn(Optional.of(user));
-        mockMvc.perform(MockMvcRequestBuilders.put("/1"))
+        
+        when(userService.updateUser(eq(1L), any(UserUpdateRequest.class)))
+            .thenReturn(UserResponse.builder()
+            .id(1L)
+            .username("theJohnD")
+            .email("john.doe@gmail.com")
+            .fullName("John Doe")
+            .enabled(true)
+            .build());
+        mockMvc.perform(MockMvcRequestBuilders.put("/1")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("{\"fullName\":\"John Doe\",\"email\":\"john.doe@gmail.com\"}"))
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1))
         .andExpect(MockMvcResultMatchers.jsonPath("$.email").value("john.doe@gmail.com"))
         .andExpect(MockMvcResultMatchers.jsonPath("$.fullName").value("John Doe"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.password").value("*jjehcH.03"))
         .andExpect(MockMvcResultMatchers.jsonPath("$.username").value("theJohnD"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.enabled").value("true"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.tokenExpired").value("false"));
+        .andExpect(MockMvcResultMatchers.jsonPath("$.enabled").value(true));
     }
 }
