@@ -43,6 +43,8 @@ public class SecurityConfig {
 
     private final JwtRequestFilter jwtAuthFilter;
 
+    private final PasswordEncoder passwordEncoder;
+
     //decoupled property extractions from application.properties to avoid hardcoding
     @Value("${security.public-urls}")
     private String[] publicUrls;
@@ -60,14 +62,9 @@ public class SecurityConfig {
         
             authenticationManagerBuilder
                 .userDetailsService(authenticationService)
-                .passwordEncoder(passwordEncoder());
+                .passwordEncoder(passwordEncoder);
 
             return authenticationManagerBuilder.build();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 
     @Bean

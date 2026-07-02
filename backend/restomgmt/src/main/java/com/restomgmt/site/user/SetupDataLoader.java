@@ -7,8 +7,8 @@ import java.util.*;
 //import org.springframework.beans.factory.annotation.Autowired;
 
 import com.restomgmt.site.user.models.User;
+import com.restomgmt.site.user.models.Permission;
 import com.restomgmt.site.user.models.Role;
-import com.restomgmt.site.user.permission.Permission;
 
 import com.restomgmt.site.user.repositories.RoleRepository;
 import com.restomgmt.site.user.repositories.PermissionRepository;

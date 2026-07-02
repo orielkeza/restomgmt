@@ -1,7 +1,7 @@
 package com.restomgmt.site.user.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import com.restomgmt.site.user.permission.Permission;
+import com.restomgmt.site.user.models.Permission;
 
 //import java.util.List;
 //import java.util.Optional;

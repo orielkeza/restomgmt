@@ -34,6 +34,7 @@ import com.restomgmt.site.user.services.UserService;
 import com.restomgmt.site.user.util.JwtUtil;
 
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 
 @WebMvcTest(UserController.class)
@@ -52,6 +53,9 @@ class UserControllerTest {
 
     @MockitoBean
     private AuthenticationService authenticationService;
+
+    @MockitoBean
+    private PasswordEncoder passwordEncoder;
 
     private Role adminRole;
     private Role staffRole;

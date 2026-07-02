@@ -68,11 +68,17 @@ class UserRepositoryTest {
 
     @Test
     void findByEmailShouldReturnCorrectUserWhenEmailIsCorrect() {
-        
+        Optional<User> result = userRepository.findByEmail("john.doe@gmail.com");
+        assertTrue(result.isPresent());
+        assertFalse(result.isEmpty());
+        assertEquals("john.doe@gmail.com", result.get().getEmail());
     }
 
     @Test
     void findByEmailShouldReturnNullWhenEmailIsCorrect() {
+        Optional<User> user = userRepository.findByEmail("falseemail@email.com");
         
+        assertFalse(user.isPresent());
+        assertTrue(user.isEmpty());
     }
 }

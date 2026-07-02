@@ -13,9 +13,6 @@ import lombok.ToString;
 //import org.hibernate.annotations.CreationTimestamp;
 import java.util.Collection;
 
-import com.restomgmt.site.user.permission.Permission;
-
-
 @Entity
 @Getter
 @Setter

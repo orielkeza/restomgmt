@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthenticationController {
     
     private final AuthenticationService authenticationService;
+    
 
     @PostMapping("/login")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody User user) {
