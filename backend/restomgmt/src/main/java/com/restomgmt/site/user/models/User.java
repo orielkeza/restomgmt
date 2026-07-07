@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import java.util.Collection;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,9 +29,14 @@ public class User {
     private Long id;
 
     private String fullName;
+
+    @NotBlank
     private @Email String email;
+
+    @NotBlank
     private String password;
     
+    @NotBlank
     @Column(unique = true, nullable = false)
     private String username;
 

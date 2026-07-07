@@ -16,8 +16,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration;
+import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -25,6 +28,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import com.restomgmt.site.user.controllers.AuthenticationController;
 import com.restomgmt.site.user.controllers.UserController;
 import com.restomgmt.site.user.dto.UserResponse;
 import com.restomgmt.site.user.dto.UserUpdateRequest;
@@ -32,15 +36,29 @@ import com.restomgmt.site.user.models.Role;
 import com.restomgmt.site.user.security.AuthenticationService;
 import com.restomgmt.site.user.services.UserService;
 import com.restomgmt.site.user.util.JwtUtil;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.context.annotation.Import;
 
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-
-@WebMvcTest(UserController.class)
+@WebMvcTest(
+    controllers = UserController.class,
+    excludeAutoConfiguration = {
+        DataSourceAutoConfiguration.class,
+        HibernateJpaAutoConfiguration.class,
+    })
+@TestPropertySource(properties = {
+    "spring.jpa.enabled=false"
+})
 @ActiveProfiles("uat")
-@ExtendWith(MockitoExtension.class)
 class UserControllerTest {
+
+    @SpringBootConfiguration
+    @Import(UserController.class)
+    static class TestConfig {
+    }
+
     
     @Autowired
     private MockMvc mockMvc;
@@ -56,6 +74,15 @@ class UserControllerTest {
 
     @MockitoBean
     private PasswordEncoder passwordEncoder;
+
+    @MockitoBean
+    private com.restomgmt.site.user.repositories.UserRepository userRepository;
+
+    @MockitoBean
+    private com.restomgmt.site.user.repositories.RoleRepository roleRepository;
+
+    @MockitoBean
+    private com.restomgmt.site.user.repositories.PermissionRepository permissionRepository;
 
     private Role adminRole;
     private Role staffRole;
@@ -137,7 +164,7 @@ class UserControllerTest {
         .andExpect(MockMvcResultMatchers.jsonPath("$[1].email").value("jane.doe@gmail.com"))
         .andExpect(MockMvcResultMatchers.jsonPath("$[1].fullName").value("Jane Doe"))
         .andExpect(MockMvcResultMatchers.jsonPath("$[1].username").value("JaneD"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$[1].enabled").value("true"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$[1].enabled").value(true))
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value(1))
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].email").value("john.doe@gmail.com"))
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].fullName").value("John Doe"))

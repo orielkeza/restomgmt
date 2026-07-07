@@ -69,6 +69,8 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        System.out.println("SecurityConfig filterChain loading");
+        System.out.println("PUBLIC URLS: " + java.util.Arrays.toString(publicUrls));
         http
             .authorizeHttpRequests(auth->auth
                 .requestMatchers(publicUrls).permitAll()
@@ -81,7 +83,7 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors->cors.configurationSource(corsConfigurationSource()));
             
-
+            System.out.println("PUBLIC URLS: " + java.util.Arrays.toString(publicUrls));
         return http.build();
     }
 
