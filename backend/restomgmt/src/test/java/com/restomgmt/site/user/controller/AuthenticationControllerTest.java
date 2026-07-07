@@ -68,7 +68,7 @@ class AuthenticationControllerTest {
         when(authenticationService.authenticate("theJohnD", "password123!"))
             .thenReturn("mocked-jwt-token");
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/login")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"username\":\"theJohnD\",\"password\":\"password123!\"}")
             )
@@ -84,7 +84,7 @@ class AuthenticationControllerTest {
         when(authenticationService.authenticate("theJohnD", "wrongPassword123!"))
             .thenThrow(new BadCredentialsException("Wrong password"));
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/login")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"username\":\"theJohnD\",\"password\":\"wrongPassword123!\"}")
             )
@@ -98,7 +98,7 @@ class AuthenticationControllerTest {
         when(authenticationService.authenticate("wrongUsername", "password123!"))
             .thenThrow(new BadCredentialsException("Invalid username"));
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/login")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"username\":\"wrongUsername\",\"password\":\"password123!\"}")
             )
@@ -112,7 +112,7 @@ class AuthenticationControllerTest {
         when(authenticationService.authenticate("theJohnD",null))
             .thenThrow(new BadCredentialsException("No password entered"));
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/login")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"username\":\"theJohnD\",\"password\":null}")
             )
@@ -126,7 +126,7 @@ class AuthenticationControllerTest {
         when(authenticationService.authenticate(null,"password123!"))
             .thenThrow(new BadCredentialsException("No username entered"));
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/login")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"username\":null,\"password\":\"password123!\"}")
             )
@@ -140,7 +140,7 @@ class AuthenticationControllerTest {
         when(authenticationService.authenticate(null,null))
             .thenThrow(new BadCredentialsException("No credentials entered"));
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/login")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"username\":null,\"password\":null}")
             )
@@ -165,7 +165,7 @@ class AuthenticationControllerTest {
         when(authenticationService.registerUser(any(User.class)))
             .thenReturn(user);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/register")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"username\":\"theJohnD\",\"password\":\"password123!\",\"email\":\"john.doe@gmail.com\"}")
             )
@@ -177,7 +177,7 @@ class AuthenticationControllerTest {
 
     @Test
     public void testRegisterShouldReturn400WhenCredentialsAreEmpty() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.post("/register")
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{}")
             )

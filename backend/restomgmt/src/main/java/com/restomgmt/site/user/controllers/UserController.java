@@ -5,32 +5,40 @@ import lombok.RequiredArgsConstructor;
 import com.restomgmt.site.user.dto.UserResponse;
 import com.restomgmt.site.user.dto.UserUpdateRequest;
 import com.restomgmt.site.user.services.UserService;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 
 @RestController
+@RequestMapping("/users/")
 @RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
 
     //fetch all students with endpoint
-    @GetMapping("/users/")
+    @GetMapping("")
+    @PreAuthorize("isAuthenticated")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id}/info")
+    @PreAuthorize("isAuthenticated")
     public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
         return userService.findUserById(id)
                           .map(ResponseEntity::ok)
                           .orElse(ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id}/delete")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         try {
             userService.deleteUser(id);
@@ -40,13 +48,20 @@ public class UserController {
         }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/update")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody UserUpdateRequest request){
         try {
             return ResponseEntity.ok(userService.updateUser(id, request));
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<String> handleAccessDenied(AccessDeniedException e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                            .body("Access denied: insufficient permissions");
     }
 
 }

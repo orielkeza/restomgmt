@@ -18,7 +18,7 @@
 [INFO] 
 [INFO] --- compiler:3.15.0:testCompile (default-testCompile) @ site ---
 [INFO] Recompiling the module because of changed dependency.
-[INFO] Compiling 7 source files with javac [debug parameters release 21] to target\test-classes
+[INFO] Compiling 8 source files with javac [debug parameters release 21] to target\test-classes
 [INFO] 
 [INFO] --- surefire:3.5.6:test (default-test) @ site ---
 [INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
@@ -27,11 +27,11 @@
 [INFO]  T E S T S
 [INFO] -------------------------------------------------------
 [INFO] Running com.restomgmt.site.SiteApplicationTests
-14:00:21.698 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.restomgmt.site.SiteApplicationTests]: SiteApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-14:00:21.790 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.restomgmt.site.SiteApplication for test class com.restomgmt.site.SiteApplicationTests
-14:00:21.859 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.restomgmt.site.SiteApplicationTests]: SiteApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-14:00:21.860 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.restomgmt.site.SiteApplication for test class com.restomgmt.site.SiteApplicationTests
-14:00:21.937 [main] INFO org.springframework.boot.devtools.restart.RestartApplicationListener -- Restart disabled due to context in which it is running
+12:26:12.166 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.restomgmt.site.SiteApplicationTests]: SiteApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+12:26:12.282 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.restomgmt.site.SiteApplication for test class com.restomgmt.site.SiteApplicationTests
+12:26:12.378 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.restomgmt.site.SiteApplicationTests]: SiteApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+12:26:12.380 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.restomgmt.site.SiteApplication for test class com.restomgmt.site.SiteApplicationTests
+12:26:12.460 [main] INFO org.springframework.boot.devtools.restart.RestartApplicationListener -- Restart disabled due to context in which it is running
 
   .   ____          _            __ _ _
  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
@@ -42,17 +42,633 @@
 
  :: Spring Boot ::                (v4.1.0)
 
-2026-07-02T14:00:26.158+02:00  WARN 29940 --- [site] [           main] org.hibernate.orm.deprecation            : HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2026-07-02T14:00:28.137+02:00  WARN 29940 --- [site] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2026-07-02T14:00:31.834+02:00  WARN 29940 --- [site] [           main] o.s.core.events.SpringDocAppInitializer  : SpringDoc /v3/api-docs endpoint is enabled by default. To disable it in production, set the property 'springdoc.api-docs.enabled=false'
-2026-07-02T14:00:31.834+02:00  WARN 29940 --- [site] [           main] o.s.core.events.SpringDocAppInitializer  : SpringDoc /swagger-ui.html endpoint is enabled by default. To disable it in production, set the property 'springdoc.swagger-ui.enabled=false'
+2026-07-07T12:26:17.645+02:00  WARN 6248 --- [site] [           main] org.hibernate.orm.deprecation            : HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-07-07T12:26:20.959+02:00  WARN 6248 --- [site] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-07-07T12:26:22.882+02:00  WARN 6248 --- [site] [           main] o.s.core.events.SpringDocAppInitializer  : SpringDoc /v3/api-docs endpoint is enabled by default. To disable it in production, set the property 'springdoc.api-docs.enabled=false'
+2026-07-07T12:26:22.883+02:00  WARN 6248 --- [site] [           main] o.s.core.events.SpringDocAppInitializer  : SpringDoc /swagger-ui.html endpoint is enabled by default. To disable it in production, set the property 'springdoc.swagger-ui.enabled=false'
 Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
 WARNING: A Java agent has been loaded dynamically (C:\Users\Oriel\.m2\repository\net\bytebuddy\byte-buddy-agent\1.18.10\byte-buddy-agent-1.18.10.jar)
 WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
 WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
 WARNING: Dynamic loading of agents will be disallowed by default in a future release
 Java HotSpot(TM) 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
-[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 10.79 s -- in com.restomgmt.site.SiteApplicationTests
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 11.44 s -- in com.restomgmt.site.SiteApplicationTests
+[INFO] Running com.restomgmt.site.user.controller.AuthenticationControllerTest
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.1.0)
+
+
+MockHttpServletRequest:
+      HTTP Method = POST
+      Request URI = /login
+       Parameters = {}
+          Headers = [Content-Type:"application/json;charset=UTF-8", Content-Length:"39"]
+             Body = {"username":"theJohnD","password":null}
+    Session Attrs = {}
+
+Handler:
+             Type = org.springframework.web.servlet.resource.ResourceHttpRequestHandler
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = org.springframework.web.servlet.resource.NoResourceFoundException
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 404
+    Error message = No static resource login.
+          Headers = []
+     Content type = null
+             Body = 
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = []
+
+MockHttpServletRequest:
+      HTTP Method = POST
+      Request URI = /login
+       Parameters = {}
+          Headers = [Content-Type:"application/json;charset=UTF-8", Content-Length:"39"]
+             Body = {"username":"theJohnD","password":null}
+    Session Attrs = {}
+
+Handler:
+             Type = org.springframework.web.servlet.resource.ResourceHttpRequestHandler
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = org.springframework.web.servlet.resource.NoResourceFoundException
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 404
+    Error message = No static resource login.
+          Headers = []
+     Content type = null
+             Body = 
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = []
+
+MockHttpServletRequest:
+      HTTP Method = POST
+      Request URI = /login
+       Parameters = {}
+          Headers = [Content-Type:"application/json;charset=UTF-8", Content-Length:"49"]
+             Body = {"username":"theJohnD","password":"password123!"}
+    Session Attrs = {}
+
+Handler:
+             Type = org.springframework.web.servlet.resource.ResourceHttpRequestHandler
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = org.springframework.web.servlet.resource.NoResourceFoundException
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 404
+    Error message = No static resource login.
+          Headers = []
+     Content type = null
+             Body = 
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = []
+
+MockHttpServletRequest:
+      HTTP Method = POST
+      Request URI = /login
+       Parameters = {}
+          Headers = [Content-Type:"application/json;charset=UTF-8", Content-Length:"49"]
+             Body = {"username":"theJohnD","password":"password123!"}
+    Session Attrs = {}
+
+Handler:
+             Type = org.springframework.web.servlet.resource.ResourceHttpRequestHandler
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = org.springframework.web.servlet.resource.NoResourceFoundException
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 404
+    Error message = No static resource login.
+          Headers = []
+     Content type = null
+             Body = 
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = []
+
+MockHttpServletRequest:
+      HTTP Method = POST
+      Request URI = /register
+       Parameters = {}
+          Headers = [Content-Type:"application/json;charset=UTF-8", Content-Length:"78"]
+             Body = {"username":"theJohnD","password":"password123!","email":"john.doe@gmail.com"}
+    Session Attrs = {}
+
+Handler:
+             Type = org.springframework.web.servlet.resource.ResourceHttpRequestHandler
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = org.springframework.web.servlet.resource.NoResourceFoundException
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 404
+    Error message = No static resource register.
+          Headers = []
+     Content type = null
+             Body = 
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = []
+
+MockHttpServletRequest:
+      HTTP Method = POST
+      Request URI = /register
+       Parameters = {}
+          Headers = [Content-Type:"application/json;charset=UTF-8", Content-Length:"78"]
+             Body = {"username":"theJohnD","password":"password123!","email":"john.doe@gmail.com"}
+    Session Attrs = {}
+
+Handler:
+             Type = org.springframework.web.servlet.resource.ResourceHttpRequestHandler
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = org.springframework.web.servlet.resource.NoResourceFoundException
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 404
+    Error message = No static resource register.
+          Headers = []
+     Content type = null
+             Body = 
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = []
+
+MockHttpServletRequest:
+      HTTP Method = POST
+      Request URI = /register
+       Parameters = {}
+          Headers = [Content-Type:"application/json;charset=UTF-8", Content-Length:"2"]
+             Body = {}
+    Session Attrs = {}
+
+Handler:
+             Type = org.springframework.web.servlet.resource.ResourceHttpRequestHandler
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = org.springframework.web.servlet.resource.NoResourceFoundException
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 404
+    Error message = No static resource register.
+          Headers = []
+     Content type = null
+             Body = 
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = []
+
+MockHttpServletRequest:
+      HTTP Method = POST
+      Request URI = /login
+       Parameters = {}
+          Headers = [Content-Type:"application/json;charset=UTF-8", Content-Length:"54"]
+             Body = {"username":"wrongUsername","password":"password123!"}
+    Session Attrs = {}
+
+Handler:
+             Type = org.springframework.web.servlet.resource.ResourceHttpRequestHandler
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = org.springframework.web.servlet.resource.NoResourceFoundException
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 404
+    Error message = No static resource login.
+          Headers = []
+     Content type = null
+             Body = 
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = []
+
+MockHttpServletRequest:
+      HTTP Method = POST
+      Request URI = /login
+       Parameters = {}
+          Headers = [Content-Type:"application/json;charset=UTF-8", Content-Length:"54"]
+             Body = {"username":"wrongUsername","password":"password123!"}
+    Session Attrs = {}
+
+Handler:
+             Type = org.springframework.web.servlet.resource.ResourceHttpRequestHandler
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = org.springframework.web.servlet.resource.NoResourceFoundException
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 404
+    Error message = No static resource login.
+          Headers = []
+     Content type = null
+             Body = 
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = []
+
+MockHttpServletRequest:
+      HTTP Method = POST
+      Request URI = /login
+       Parameters = {}
+          Headers = [Content-Type:"application/json;charset=UTF-8", Content-Length:"33"]
+             Body = {"username":null,"password":null}
+    Session Attrs = {}
+
+Handler:
+             Type = org.springframework.web.servlet.resource.ResourceHttpRequestHandler
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = org.springframework.web.servlet.resource.NoResourceFoundException
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 404
+    Error message = No static resource login.
+          Headers = []
+     Content type = null
+             Body = 
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = []
+
+MockHttpServletRequest:
+      HTTP Method = POST
+      Request URI = /login
+       Parameters = {}
+          Headers = [Content-Type:"application/json;charset=UTF-8", Content-Length:"33"]
+             Body = {"username":null,"password":null}
+    Session Attrs = {}
+
+Handler:
+             Type = org.springframework.web.servlet.resource.ResourceHttpRequestHandler
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = org.springframework.web.servlet.resource.NoResourceFoundException
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 404
+    Error message = No static resource login.
+          Headers = []
+     Content type = null
+             Body = 
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = []
+
+MockHttpServletRequest:
+      HTTP Method = POST
+      Request URI = /login
+       Parameters = {}
+          Headers = [Content-Type:"application/json;charset=UTF-8", Content-Length:"43"]
+             Body = {"username":null,"password":"password123!"}
+    Session Attrs = {}
+
+Handler:
+             Type = org.springframework.web.servlet.resource.ResourceHttpRequestHandler
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = org.springframework.web.servlet.resource.NoResourceFoundException
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 404
+    Error message = No static resource login.
+          Headers = []
+     Content type = null
+             Body = 
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = []
+
+MockHttpServletRequest:
+      HTTP Method = POST
+      Request URI = /login
+       Parameters = {}
+          Headers = [Content-Type:"application/json;charset=UTF-8", Content-Length:"43"]
+             Body = {"username":null,"password":"password123!"}
+    Session Attrs = {}
+
+Handler:
+             Type = org.springframework.web.servlet.resource.ResourceHttpRequestHandler
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = org.springframework.web.servlet.resource.NoResourceFoundException
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 404
+    Error message = No static resource login.
+          Headers = []
+     Content type = null
+             Body = 
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = []
+
+MockHttpServletRequest:
+      HTTP Method = POST
+      Request URI = /login
+       Parameters = {}
+          Headers = [Content-Type:"application/json;charset=UTF-8", Content-Length:"54"]
+             Body = {"username":"theJohnD","password":"wrongPassword123!"}
+    Session Attrs = {}
+
+Handler:
+             Type = org.springframework.web.servlet.resource.ResourceHttpRequestHandler
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = org.springframework.web.servlet.resource.NoResourceFoundException
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 404
+    Error message = No static resource login.
+          Headers = []
+     Content type = null
+             Body = 
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = []
+
+MockHttpServletRequest:
+      HTTP Method = POST
+      Request URI = /login
+       Parameters = {}
+          Headers = [Content-Type:"application/json;charset=UTF-8", Content-Length:"54"]
+             Body = {"username":"theJohnD","password":"wrongPassword123!"}
+    Session Attrs = {}
+
+Handler:
+             Type = org.springframework.web.servlet.resource.ResourceHttpRequestHandler
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = org.springframework.web.servlet.resource.NoResourceFoundException
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 404
+    Error message = No static resource login.
+          Headers = []
+     Content type = null
+             Body = 
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = []
+[ERROR] Tests run: 8, Failures: 8, Errors: 0, Skipped: 0, Time elapsed: 1.796 s <<< FAILURE! -- in com.restomgmt.site.user.controller.AuthenticationControllerTest
+[ERROR] com.restomgmt.site.user.controller.AuthenticationControllerTest.testLoginShouldNotReturn401WhenPasswordIsNull -- Time elapsed: 0.286 s <<< FAILURE!
+java.lang.AssertionError: Status expected:<401> but was:<404>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:62)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:129)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$0(StatusResultMatchers.java:600)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:212)
+	at com.restomgmt.site.user.controller.AuthenticationControllerTest.testLoginShouldNotReturn401WhenPasswordIsNull(AuthenticationControllerTest.java:120)
+
+[ERROR] com.restomgmt.site.user.controller.AuthenticationControllerTest.testLoginShouldReturnTokenWhenCredentialsAreValid -- Time elapsed: 0.037 s <<< FAILURE!
+java.lang.AssertionError: Status expected:<200> but was:<404>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:62)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:129)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$0(StatusResultMatchers.java:600)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:212)
+	at com.restomgmt.site.user.controller.AuthenticationControllerTest.testLoginShouldReturnTokenWhenCredentialsAreValid(AuthenticationControllerTest.java:76)
+
+[ERROR] com.restomgmt.site.user.controller.AuthenticationControllerTest.testRegisterShouldReturn201WhenCredentialsAreValid -- Time elapsed: 0.068 s <<< FAILURE!
+java.lang.AssertionError: Status expected:<201> but was:<404>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:62)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:129)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$0(StatusResultMatchers.java:600)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:212)
+	at com.restomgmt.site.user.controller.AuthenticationControllerTest.testRegisterShouldReturn201WhenCredentialsAreValid(AuthenticationControllerTest.java:173)
+
+[ERROR] com.restomgmt.site.user.controller.AuthenticationControllerTest.testRegisterShouldReturn400WhenCredentialsAreEmpty -- Time elapsed: 0.013 s <<< FAILURE!
+java.lang.AssertionError: Status expected:<400> but was:<404>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:62)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:129)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$0(StatusResultMatchers.java:600)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:212)
+	at com.restomgmt.site.user.controller.AuthenticationControllerTest.testRegisterShouldReturn400WhenCredentialsAreEmpty(AuthenticationControllerTest.java:184)
+
+[ERROR] com.restomgmt.site.user.controller.AuthenticationControllerTest.testLoginShouldNotReturn401WhenUsernameIsInvalid -- Time elapsed: 0.013 s <<< FAILURE!
+java.lang.AssertionError: Status expected:<401> but was:<404>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:62)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:129)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$0(StatusResultMatchers.java:600)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:212)
+	at com.restomgmt.site.user.controller.AuthenticationControllerTest.testLoginShouldNotReturn401WhenUsernameIsInvalid(AuthenticationControllerTest.java:106)
+
+[ERROR] com.restomgmt.site.user.controller.AuthenticationControllerTest.testLoginShouldNotReturn401WhenUsernameAndPasswordAreNull -- Time elapsed: 0.019 s <<< FAILURE!
+java.lang.AssertionError: Status expected:<401> but was:<404>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:62)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:129)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$0(StatusResultMatchers.java:600)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:212)
+	at com.restomgmt.site.user.controller.AuthenticationControllerTest.testLoginShouldNotReturn401WhenUsernameAndPasswordAreNull(AuthenticationControllerTest.java:148)
+
+[ERROR] com.restomgmt.site.user.controller.AuthenticationControllerTest.testLoginShouldNotReturn401WhenUsernameIsNull -- Time elapsed: 0.015 s <<< FAILURE!
+java.lang.AssertionError: Status expected:<401> but was:<404>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:62)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:129)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$0(StatusResultMatchers.java:600)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:212)
+	at com.restomgmt.site.user.controller.AuthenticationControllerTest.testLoginShouldNotReturn401WhenUsernameIsNull(AuthenticationControllerTest.java:134)
+
+[ERROR] com.restomgmt.site.user.controller.AuthenticationControllerTest.testLoginShouldNotReturn401WhenPasswordIsWrong -- Time elapsed: 0.019 s <<< FAILURE!
+java.lang.AssertionError: Status expected:<401> but was:<404>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:62)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:129)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$0(StatusResultMatchers.java:600)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:212)
+	at com.restomgmt.site.user.controller.AuthenticationControllerTest.testLoginShouldNotReturn401WhenPasswordIsWrong(AuthenticationControllerTest.java:92)
+
 [INFO] Running com.restomgmt.site.user.controller.UserControllerTest
 
   .   ____          _            __ _ _
@@ -103,23 +719,22 @@ MockHttpServletResponse:
           Cookies = []
 
 MockHttpServletRequest:
-      HTTP Method = GET
+      HTTP Method = PUT
       Request URI = /1
        Parameters = {}
-          Headers = []
-             Body = null
+          Headers = [Content-Type:"application/json;charset=UTF-8", Content-Length:"52"]
+             Body = {"fullName":"John Doe","email":"john.doe@gmail.com"}
     Session Attrs = {}
 
 Handler:
-             Type = com.restomgmt.site.user.controllers.UserController
-           Method = com.restomgmt.site.user.controllers.UserController#getUserById(Long)
+             Type = org.springframework.web.servlet.resource.ResourceHttpRequestHandler
 
 Async:
     Async started = false
      Async result = null
 
 Resolved Exception:
-             Type = null
+             Type = org.springframework.web.servlet.resource.NoResourceFoundException
 
 ModelAndView:
         View name = null
@@ -130,16 +745,148 @@ FlashMap:
        Attributes = null
 
 MockHttpServletResponse:
-           Status = 200
-    Error message = null
-          Headers = [Content-Type:"application/json"]
-     Content type = application/json
-             Body = {"email":"john.doe@gmail.com","enabled":true,"fullName":"John Doe","id":1,"username":"theJohnD"}
+           Status = 404
+    Error message = No static resource 1.
+          Headers = []
+     Content type = null
+             Body = 
     Forwarded URL = null
    Redirected URL = null
           Cookies = []
-[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.703 s -- in com.restomgmt.site.user.controller.UserControllerTest
-[INFO] Running com.restomgmt.site.user.repositories.UserRepositoryTest
+
+MockHttpServletRequest:
+      HTTP Method = DELETE
+      Request URI = /1
+       Parameters = {}
+          Headers = []
+             Body = null
+    Session Attrs = {}
+
+Handler:
+             Type = org.springframework.web.servlet.resource.ResourceHttpRequestHandler
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = org.springframework.web.servlet.resource.NoResourceFoundException
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 404
+    Error message = No static resource 1.
+          Headers = []
+     Content type = null
+             Body = 
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = []
+
+MockHttpServletRequest:
+      HTTP Method = GET
+      Request URI = /1
+       Parameters = {}
+          Headers = []
+             Body = null
+    Session Attrs = {}
+
+Handler:
+             Type = org.springframework.web.servlet.resource.ResourceHttpRequestHandler
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = org.springframework.web.servlet.resource.NoResourceFoundException
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 404
+    Error message = No static resource 1.
+          Headers = []
+     Content type = null
+             Body = 
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = []
+
+MockHttpServletRequest:
+      HTTP Method = GET
+      Request URI = /1
+       Parameters = {}
+          Headers = []
+             Body = null
+    Session Attrs = {}
+
+Handler:
+             Type = org.springframework.web.servlet.resource.ResourceHttpRequestHandler
+
+Async:
+    Async started = false
+     Async result = null
+
+Resolved Exception:
+             Type = org.springframework.web.servlet.resource.NoResourceFoundException
+
+ModelAndView:
+        View name = null
+             View = null
+            Model = null
+
+FlashMap:
+       Attributes = null
+
+MockHttpServletResponse:
+           Status = 404
+    Error message = No static resource 1.
+          Headers = []
+     Content type = null
+             Body = 
+    Forwarded URL = null
+   Redirected URL = null
+          Cookies = []
+[ERROR] Tests run: 4, Failures: 3, Errors: 0, Skipped: 0, Time elapsed: 1.165 s <<< FAILURE! -- in com.restomgmt.site.user.controller.UserControllerTest
+[ERROR] com.restomgmt.site.user.controller.UserControllerTest.testUpdateUser -- Time elapsed: 0.008 s <<< FAILURE!
+java.lang.AssertionError: Status expected:<200> but was:<404>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:62)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:129)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$0(StatusResultMatchers.java:600)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:212)
+	at com.restomgmt.site.user.controller.UserControllerTest.testUpdateUser(UserControllerTest.java:221)
+
+[ERROR] com.restomgmt.site.user.controller.UserControllerTest.testDeleteUser -- Time elapsed: 0.018 s <<< FAILURE!
+java.lang.AssertionError: Status expected:<204> but was:<404>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:62)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:129)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$0(StatusResultMatchers.java:600)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:212)
+	at com.restomgmt.site.user.controller.UserControllerTest.testDeleteUser(UserControllerTest.java:193)
+
+[ERROR] com.restomgmt.site.user.controller.UserControllerTest.testGetUserById -- Time elapsed: 0.017 s <<< FAILURE!
+java.lang.AssertionError: Status expected:<200> but was:<404>
+	at org.springframework.test.util.AssertionErrors.fail(AssertionErrors.java:62)
+	at org.springframework.test.util.AssertionErrors.assertEquals(AssertionErrors.java:129)
+	at org.springframework.test.web.servlet.result.StatusResultMatchers.lambda$matcher$0(StatusResultMatchers.java:600)
+	at org.springframework.test.web.servlet.MockMvc$1.andExpect(MockMvc.java:212)
+	at com.restomgmt.site.user.controller.UserControllerTest.testGetUserById(UserControllerTest.java:120)
+
+[INFO] Running com.restomgmt.site.user.repositories.PermissionRepositoryTest
 
   .   ____          _            __ _ _
  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
@@ -150,7 +897,7 @@ MockHttpServletResponse:
 
  :: Spring Boot ::                (v4.1.0)
 
-2026-07-02T14:00:34.369+02:00  WARN 29940 --- [site] [           main] org.hibernate.orm.deprecation            : HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-07-07T12:26:26.813+02:00  WARN 6248 --- [site] [           main] org.hibernate.orm.deprecation            : HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
 Hibernate: drop table if exists permission cascade 
 Hibernate: drop table if exists roles cascade 
 Hibernate: drop table if exists roles_permissions cascade 
@@ -159,43 +906,95 @@ Hibernate: drop table if exists users_roles cascade
 Hibernate: create table permission (id bigint generated by default as identity, name varchar(255), primary key (id))
 Hibernate: create table roles (id bigint generated by default as identity, name varchar(255) not null unique, primary key (id))
 Hibernate: create table roles_permissions (permission bigint not null, role_id bigint not null)
-Hibernate: create table users (enabled boolean, token_expired boolean, id bigint generated by default as identity, email varchar(255), full_name varchar(255), password varchar(255), username varchar(255) not null unique, primary key (id))
+Hibernate: create table users (enabled boolean, token_expired boolean, id bigint generated by default as identity, email varchar(255) not null, full_name varchar(255), password varchar(255) not null, username varchar(255) not null unique, primary key (id))
 Hibernate: create table users_roles (role_id bigint not null, user_id bigint not null)
 Hibernate: alter table if exists roles_permissions add constraint FKs5hvq2g15g0xvdrqrnr4jpgy0 foreign key (permission) references permission
 Hibernate: alter table if exists roles_permissions add constraint FKqi9odri6c1o81vjox54eedwyh foreign key (role_id) references roles
 Hibernate: alter table if exists users_roles add constraint FKj6m8fwv7oqv74fcehir1a9ffy foreign key (role_id) references roles
 Hibernate: alter table if exists users_roles add constraint FK2o0jvgh89lemvvo17cbqvdxaa foreign key (user_id) references users
+Hibernate: select p1_0.id,p1_0.name from permission p1_0
+Hibernate: select r1_0.id,r1_0.name from roles r1_0
+Hibernate: insert into roles (name,id) values (?,default)
+Hibernate: insert into permission (name,id) values (?,default)
+Hibernate: select p1_0.id,p1_0.name from permission p1_0 where p1_0.name=?
+Hibernate: select p1_0.id,p1_0.name from permission p1_0
+Hibernate: select r1_0.id,r1_0.name from roles r1_0
+Hibernate: insert into roles (name,id) values (?,default)
+Hibernate: insert into permission (name,id) values (?,default)
+Hibernate: select p1_0.id,p1_0.name from permission p1_0 where p1_0.name=?
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.243 s -- in com.restomgmt.site.user.repositories.PermissionRepositoryTest
+[INFO] Running com.restomgmt.site.user.repositories.RoleRepositoryTest
 Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.full_name,u1_0.password,u1_0.token_expired,u1_0.username from users u1_0
 Hibernate: select r1_0.id,r1_0.name from roles r1_0
 Hibernate: insert into roles (name,id) values (?,default)
 Hibernate: insert into users (email,enabled,full_name,password,token_expired,username,id) values (?,?,?,?,?,?,default)
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.name=?
 Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.full_name,u1_0.password,u1_0.token_expired,u1_0.username from users u1_0
 Hibernate: select r1_0.id,r1_0.name from roles r1_0
 Hibernate: insert into roles (name,id) values (?,default)
 Hibernate: insert into users (email,enabled,full_name,password,token_expired,username,id) values (?,?,?,?,?,?,default)
-Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.full_name,u1_0.password,u1_0.token_expired,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.name=?
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.174 s -- in com.restomgmt.site.user.repositories.RoleRepositoryTest
+[INFO] Running com.restomgmt.site.user.repositories.UserRepositoryTest
 Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.full_name,u1_0.password,u1_0.token_expired,u1_0.username from users u1_0
 Hibernate: select r1_0.id,r1_0.name from roles r1_0
 Hibernate: insert into roles (name,id) values (?,default)
 Hibernate: insert into users (email,enabled,full_name,password,token_expired,username,id) values (?,?,?,?,?,?,default)
-Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.full_name,u1_0.password,u1_0.token_expired,u1_0.username from users u1_0 where u1_0.username=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.full_name,u1_0.password,u1_0.token_expired,u1_0.username from users u1_0 where u1_0.email=?
 Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.full_name,u1_0.password,u1_0.token_expired,u1_0.username from users u1_0
 Hibernate: select r1_0.id,r1_0.name from roles r1_0
 Hibernate: insert into roles (name,id) values (?,default)
 Hibernate: insert into users (email,enabled,full_name,password,token_expired,username,id) values (?,?,?,?,?,?,default)
-[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.795 s -- in com.restomgmt.site.user.repositories.UserRepositoryTest
+Hibernate: insert into users_roles (user_id,role_id) values (?,?)
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.full_name,u1_0.password,r1_0.user_id,r1_1.id,r1_1.name,u1_0.token_expired,u1_0.username from users u1_0 left join users_roles r1_0 on u1_0.id=r1_0.user_id left join roles r1_1 on r1_1.id=r1_0.role_id where u1_0.username=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.full_name,u1_0.password,u1_0.token_expired,u1_0.username from users u1_0
+Hibernate: select r1_0.id,r1_0.name from roles r1_0
+Hibernate: insert into roles (name,id) values (?,default)
+Hibernate: insert into users (email,enabled,full_name,password,token_expired,username,id) values (?,?,?,?,?,?,default)
+Hibernate: insert into users_roles (user_id,role_id) values (?,?)
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.full_name,u1_0.password,r1_0.user_id,r1_1.id,r1_1.name,u1_0.token_expired,u1_0.username from users u1_0 left join users_roles r1_0 on u1_0.id=r1_0.user_id left join roles r1_1 on r1_1.id=r1_0.role_id where u1_0.username=?
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.full_name,u1_0.password,u1_0.token_expired,u1_0.username from users u1_0
+Hibernate: select r1_0.id,r1_0.name from roles r1_0
+Hibernate: insert into roles (name,id) values (?,default)
+Hibernate: insert into users (email,enabled,full_name,password,token_expired,username,id) values (?,?,?,?,?,?,default)
+Hibernate: select u1_0.id,u1_0.email,u1_0.enabled,u1_0.full_name,u1_0.password,u1_0.token_expired,u1_0.username from users u1_0 where u1_0.email=?
+[INFO] Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.201 s -- in com.restomgmt.site.user.repositories.UserRepositoryTest
 [INFO] Running com.restomgmt.site.user.service.AuthenticationServiceTest
-[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.272 s -- in com.restomgmt.site.user.service.AuthenticationServiceTest
+[INFO] Tests run: 6, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.161 s -- in com.restomgmt.site.user.service.AuthenticationServiceTest
 [INFO] Running com.restomgmt.site.user.util.JwtUtilTest
-[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.244 s -- in com.restomgmt.site.user.util.JwtUtilTest
+[INFO] Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.348 s -- in com.restomgmt.site.user.util.JwtUtilTest
 [INFO] 
 [INFO] Results:
 [INFO] 
-[INFO] Tests run: 20, Failures: 0, Errors: 0, Skipped: 0
+[ERROR] Failures: 
+[ERROR]   AuthenticationControllerTest.testLoginShouldNotReturn401WhenPasswordIsNull:120 Status expected:<401> but was:<404>
+[ERROR]   AuthenticationControllerTest.testLoginShouldNotReturn401WhenPasswordIsWrong:92 Status expected:<401> but was:<404>
+[ERROR]   AuthenticationControllerTest.testLoginShouldNotReturn401WhenUsernameAndPasswordAreNull:148 Status expected:<401> but was:<404>
+[ERROR]   AuthenticationControllerTest.testLoginShouldNotReturn401WhenUsernameIsInvalid:106 Status expected:<401> but was:<404>
+[ERROR]   AuthenticationControllerTest.testLoginShouldNotReturn401WhenUsernameIsNull:134 Status expected:<401> but was:<404>
+[ERROR]   AuthenticationControllerTest.testLoginShouldReturnTokenWhenCredentialsAreValid:76 Status expected:<200> but was:<404>
+[ERROR]   AuthenticationControllerTest.testRegisterShouldReturn201WhenCredentialsAreValid:173 Status expected:<201> but was:<404>
+[ERROR]   AuthenticationControllerTest.testRegisterShouldReturn400WhenCredentialsAreEmpty:184 Status expected:<400> but was:<404>
+[ERROR]   UserControllerTest.testDeleteUser:193 Status expected:<204> but was:<404>
+[ERROR]   UserControllerTest.testGetUserById:120 Status expected:<200> but was:<404>
+[ERROR]   UserControllerTest.testUpdateUser:221 Status expected:<200> but was:<404>
+[INFO] 
+[ERROR] Tests run: 32, Failures: 11, Errors: 0, Skipped: 0
 [INFO] 
 [INFO] ------------------------------------------------------------------------
-[INFO] BUILD SUCCESS
+[INFO] BUILD FAILURE
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  22.418 s
-[INFO] Finished at: 2026-07-02T14:00:35+02:00
+[INFO] Total time:  23.071 s
+[INFO] Finished at: 2026-07-07T12:26:28+02:00
 [INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.5.6:test (default-test) on project site: There are test failures.
+[ERROR] 
+[ERROR] See C:\Users\Oriel\WysCoOp\RestoManagement\backend\restomgmt\target\surefire-reports for the individual test results.
+[ERROR] See dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

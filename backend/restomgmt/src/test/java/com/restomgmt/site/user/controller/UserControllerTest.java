@@ -13,8 +13,6 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration;
 import org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration;
@@ -28,7 +26,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import com.restomgmt.site.user.controllers.AuthenticationController;
 import com.restomgmt.site.user.controllers.UserController;
 import com.restomgmt.site.user.dto.UserResponse;
 import com.restomgmt.site.user.dto.UserUpdateRequest;
@@ -115,7 +112,7 @@ class UserControllerTest {
         assertEquals(1L, user.getId());
 
         when(userService.findUserById(1L)).thenReturn(Optional.of(user));
-        mockMvc.perform(MockMvcRequestBuilders.get("/1"))
+        mockMvc.perform(MockMvcRequestBuilders.get("/users/1/info"))
         .andDo(MockMvcResultHandlers.print())
         .andExpect(MockMvcResultMatchers.status().isOk())
         .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1))
@@ -189,7 +186,7 @@ class UserControllerTest {
 
         doNothing().when(userService).deleteUser(1L);
         when(userService.findUserById(1L)).thenReturn(Optional.of(user));
-        mockMvc.perform(MockMvcRequestBuilders.delete("/1"))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/users/1/delete"))
         .andExpect(MockMvcResultMatchers.status().isNoContent());
         verify(userService).deleteUser(1L);
     }
@@ -215,7 +212,7 @@ class UserControllerTest {
             .fullName("John Doe")
             .enabled(true)
             .build());
-        mockMvc.perform(MockMvcRequestBuilders.put("/1")
+        mockMvc.perform(MockMvcRequestBuilders.put("/users/1/update")
         .contentType(MediaType.APPLICATION_JSON)
         .content("{\"fullName\":\"John Doe\",\"email\":\"john.doe@gmail.com\"}"))
         .andExpect(MockMvcResultMatchers.status().isOk())

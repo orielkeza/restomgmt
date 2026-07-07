@@ -8,6 +8,7 @@ import com.restomgmt.site.user.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -22,6 +23,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    @Transactional(readOnly = true)
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll()
                              .stream()
@@ -29,6 +31,7 @@ public class UserService {
                              .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public Optional<UserResponse> findUserById(Long id) {
         return userRepository.findById(id)
                              .map(this::toResponse);

@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 
 import java.util.Collection;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -20,7 +22,7 @@ import lombok.ToString;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
+@ToString(exclude = "roles")
 //@Table(name = "users")
 //public class UserNew implements UserDetails, CredentialsContainer {
 public class User {
@@ -43,6 +45,7 @@ public class User {
     private Boolean enabled;
     private Boolean tokenExpired;
 
+    @JsonIgnore
     @ManyToMany
     @JoinTable(
         name = "users_roles",
