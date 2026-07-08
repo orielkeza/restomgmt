@@ -3,7 +3,6 @@ package com.restomgmt.site.user.filter;
 import com.restomgmt.site.user.security.AuthenticationService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import com.restomgmt.site.user.util.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -14,15 +13,16 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+
 import java.io.IOException;
 
+@RequiredArgsConstructor
 public class JwtRequestFilter extends OncePerRequestFilter {
     
-    @Autowired 
-    private JwtUtil jwtUtil;
+    private final JwtUtil jwtUtil;
 
-    @Autowired 
-    private AuthenticationService authenticationService;
+    private final AuthenticationService authenticationService;
 
     @Override 
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)

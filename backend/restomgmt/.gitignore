@@ -33,3 +33,6 @@ build/
 .vscode/
 
 .env
+
+##profile management, ignore local dev
+src/main/resources/application-dev.properties
