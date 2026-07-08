@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,15 +53,15 @@ class RoleRepositoryTest {
 
     @Test
     void findByNameShouldReturnCorrectUserWhenNameIsCorrect() {
-        Role result = roleRepository.findByName("ROLE_USER");
+        Optional<Role> result = roleRepository.findByName("ROLE_USER");
         
-        assertEquals("ROLE_USER", result.getName());
+        assertEquals("ROLE_USER", result.get().getName());
     }
 
     @Test
     void findByNameShouldReturnNullWhenNameIsIncorrect() {
-        Role role = roleRepository.findByName("ROLE_FALSE");
-        
+        Optional<Role> role = roleRepository.findByName("ROLE_FALSE");
+
         assertNull(role);
     }
 }

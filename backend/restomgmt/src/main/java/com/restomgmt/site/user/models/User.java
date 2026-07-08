@@ -30,19 +30,25 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String fullName;
 
+    @Column(nullable = false, length = 254)
     @NotBlank
     private @Email String email;
 
+    @Column(nullable = false)
     @NotBlank
     private String password;
     
     @NotBlank
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false, length = 254)
     private String username;
 
+    @Column(nullable = false)
     private Boolean enabled;
+
+    @Column(nullable = false)
     private Boolean tokenExpired;
 
     @JsonIgnore

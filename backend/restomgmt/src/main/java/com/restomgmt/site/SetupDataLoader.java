@@ -77,7 +77,7 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
         createMenuItemIfNotFound("Chocolate Cake", "Rich dark chocolate cake", new BigDecimal("5.99"), dessertsCategory);
         createMenuItemIfNotFound("Lemonade", "Fresh squeezed lemonade", new BigDecimal("2.99"), drinksCategory);
 
-        Role adminRole = roleRepository.findByName("ROLE_ADMIN");
+        Optional<Role> adminRole = roleRepository.findByName("ROLE_ADMIN");
         if(userRepository.findByUsername("testUsername").isEmpty()) {
             User user = new User();
             user.setFullName("Test Tester");
@@ -86,7 +86,7 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
             user.setEnabled(true);
             user.setTokenExpired(false);
             user.setUsername("testUsername");
-            user.setRoles(List.of(adminRole));
+            user.setRoles(adminRole.map(List::of).orElseGet(List::of));
             userRepository.save(user);
         }
 
@@ -95,28 +95,21 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
 
     @Transactional
     Permission createPermissionIfNotFound(String name) {
-        Permission permission = permissionRepository.findByName(name);
-        if(permission == null) {
-            permission = new Permission();
-            permission.setName(name);
-            permissionRepository.save(permission);
-        }
-        return permission;
+        return permissionRepository.findByName(name)
+            .orElseGet(() -> {
+                Permission permission = Permission.builder().name(name).build();
+                return permissionRepository.save(permission);
+            });
     }
 
     @Transactional
-    Role createRoleIfNotFound(
-        String name, Collection<Permission> permissions, Collection<User> users) {
-
-            Role role = roleRepository.findByName(name);
-            if(role == null) {
-                role = new Role();
-                role.setName(name);
-                role.setPermissions(permissions);
-                roleRepository.save(role);
-            }
-            return role;
-        }
+    Role createRoleIfNotFound(String name, Collection<Permission> permissions, Collection<User> users) {
+        return roleRepository.findByName(name)
+            .orElseGet(() -> {
+                Role role = Role.builder().name(name).permissions(permissions).build();
+                return roleRepository.save(role);
+            });
+    }
 
     @Transactional
     Category createCategoryIfNotFound(String name) {

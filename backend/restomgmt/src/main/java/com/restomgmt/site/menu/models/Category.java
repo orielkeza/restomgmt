@@ -27,7 +27,7 @@ public class Category extends BaseEntity {
     private Long id;
 
     @NotBlank
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false, length = 254)
     private String name;
 
 }

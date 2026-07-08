@@ -3,6 +3,8 @@ package com.restomgmt.site.user.repositories;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,14 +46,14 @@ class PermissionRepositoryTest {
 
     @Test
     void findByNameShouldReturnCorrectUserWhenUsernameIsCorrect() {
-        Permission result = permissionRepository.findByName("Ordering");
+        Optional<Permission> result = permissionRepository.findByName("Ordering");
         
-        assertEquals("Ordering", result.getName());
+        assertEquals("Ordering", result.get().getName());
     }
 
     @Test
     void findByNameShouldReturnNullWhenUsernameIsIncorrect() {
-        Permission permission = permissionRepository.findByName("False");
+        Optional<Permission> permission = permissionRepository.findByName("False");
         
         assertNull(permission);
     }

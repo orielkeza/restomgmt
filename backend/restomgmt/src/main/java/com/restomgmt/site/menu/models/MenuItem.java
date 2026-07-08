@@ -34,9 +34,10 @@ public class MenuItem extends BaseEntity{
     private Long id;
 
     @NotBlank
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true, length = 254)
     private String name;
 
+    @Column(nullable = true)
     private String description;
 
     @NotNull
@@ -44,6 +45,7 @@ public class MenuItem extends BaseEntity{
     @Column(nullable = false)
     private BigDecimal cost;// big decimal is the ideal type for money because it is exact
 
+    @Column(nullable = false)
     private boolean available = true;
 
     @NotNull
