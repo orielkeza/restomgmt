@@ -28,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class MenuItemController {
     private final MenuItemService menuItemService;
 
-    @GetMapping
+    @GetMapping("")
     public ResponseEntity<List<MenuItemResponse>> getAllItems() {
         return ResponseEntity.ok(menuItemService.getAvailableItems());
     }

@@ -1,15 +1,21 @@
-package com.restomgmt.site.user;
+package com.restomgmt.site;
 
 import com.restomgmt.site.user.repositories.UserRepository;
+
+import java.math.BigDecimal;
 import java.util.*;
 //import jakarta.persistence.*;
 
 //import org.springframework.beans.factory.annotation.Autowired;
 
 import com.restomgmt.site.user.models.User;
+import com.restomgmt.site.menu.models.Category;
+import com.restomgmt.site.menu.models.MenuItem;
 import com.restomgmt.site.user.models.Permission;
 import com.restomgmt.site.user.models.Role;
 
+import com.restomgmt.site.menu.repositories.CategoryRepository;
+import com.restomgmt.site.menu.repositories.MenuItemRepository;
 import com.restomgmt.site.user.repositories.RoleRepository;
 import com.restomgmt.site.user.repositories.PermissionRepository;
 
@@ -40,6 +46,10 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
 
     private final PermissionRepository permissionRepository;
 
+    private final CategoryRepository categoryRepository;
+
+    private final MenuItemRepository menuItemRepository;
+
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -58,6 +68,14 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
         );
         createRoleIfNotFound("ROLE_ADMIN", adminPermissions, null);
         createRoleIfNotFound("ROLE_USER", Arrays.asList(readPermission), null);
+
+        Category mainsCategory = createCategoryIfNotFound("Mains");
+        Category drinksCategory = createCategoryIfNotFound("Drinks");
+        Category dessertsCategory = createCategoryIfNotFound("Desserts");
+
+        createMenuItemIfNotFound("Grilled Chicken", "Herb-marinated grilled chicken", new BigDecimal("12.99"), mainsCategory);
+        createMenuItemIfNotFound("Chocolate Cake", "Rich dark chocolate cake", new BigDecimal("5.99"), dessertsCategory);
+        createMenuItemIfNotFound("Lemonade", "Fresh squeezed lemonade", new BigDecimal("2.99"), drinksCategory);
 
         Role adminRole = roleRepository.findByName("ROLE_ADMIN");
         if(userRepository.findByUsername("testUsername").isEmpty()) {
@@ -99,5 +117,28 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
             }
             return role;
         }
+
+    @Transactional
+    Category createCategoryIfNotFound(String name) {
+        return categoryRepository.findByName(name)
+            .orElseGet(() -> {
+                Category category = Category.builder().name(name).build();
+                return categoryRepository.save(category);
+            });
+    }
+
+    @Transactional
+    void createMenuItemIfNotFound(String name, String description, BigDecimal cost, Category category) {
+        if (menuItemRepository.findAll().stream().noneMatch(i -> i.getName().equals(name))) {
+        MenuItem item = MenuItem.builder()
+            .name(name)
+            .description(description)
+            .cost(cost)
+            .available(true)
+            .category(category)
+            .build();
+        menuItemRepository.save(item);
+    }
+    }
     
 }

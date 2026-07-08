@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
 @EnableJpaAuditing
-@EnableJpaRepositories(basePackages = "com.restomgmt.site.user.repositories")
+@EnableJpaRepositories(basePackages = {"com.restomgmt.site.user.repositories", "com.restomgmt.site.menu.repositories"})
 //@EnableMongoRepositories(basePackages = "com.restomgmt.site.mongo.repositories")//placeholder
 public class SiteApplication {
 

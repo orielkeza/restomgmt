@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class MenuItemService {
-   private final MenuItemRepository menuItemRepository;
+    private final MenuItemRepository menuItemRepository;
     private final CategoryRepository categoryRepository;
 
     public List<MenuItemResponse> getAllItems() {

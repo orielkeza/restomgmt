@@ -28,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class CategoryController {
     private final CategoryService categoryService;
 
-    @GetMapping
+    @GetMapping("")
     public ResponseEntity<List<CategoryResponse>> getAllCategories() {
         return ResponseEntity.ok(categoryService.getAllCategories());
     }
