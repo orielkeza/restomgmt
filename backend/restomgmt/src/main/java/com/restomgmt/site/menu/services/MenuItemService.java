@@ -15,9 +15,11 @@ import com.restomgmt.site.menu.repositories.CategoryRepository;
 import com.restomgmt.site.menu.repositories.MenuItemRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MenuItemService {
     private final MenuItemRepository menuItemRepository;
     private final CategoryRepository categoryRepository;

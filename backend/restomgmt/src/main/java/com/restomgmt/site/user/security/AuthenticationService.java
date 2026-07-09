@@ -12,11 +12,13 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class AuthenticationService implements UserDetailsService {
     
     private final UserRepository userRepository;
@@ -39,9 +41,12 @@ public class AuthenticationService implements UserDetailsService {
     }
 
     public String authenticate(String username, String password) {
+        log.info("Authenticating user={}", username);
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
         final UserDetails userDetails = loadUserByUsername(username);
-        return jwtUtil.generateToken(userDetails.getUsername());    
+        String token = jwtUtil.generateToken(userDetails.getUsername());
+        log.debug("Generated JWT for user={}", username);
+        return token;
     }
 
     @Override
@@ -57,7 +62,10 @@ public class AuthenticationService implements UserDetailsService {
     }
 
     public User registerUser (User user) {
+        log.info("Registering user={}", user.getUsername());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+        User saved = userRepository.save(user);
+        log.debug("User persisted id={}", saved.getId());
+        return saved;
     }
 }

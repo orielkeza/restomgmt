@@ -6,6 +6,7 @@ import com.restomgmt.site.user.models.User;
 import com.restomgmt.site.user.repositories.UserRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,16 +16,19 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
     
     private final UserRepository userRepository;
 
     public User addUser (User user) {
+        log.info("Adding user {}", user.getUsername());
         return userRepository.save(user);
     }
 
     @Transactional(readOnly = true)
     public List<UserResponse> getAllUsers() {
+        log.debug("Retrieving all users");
         return userRepository.findAll()
                              .stream()
                              .map(this::toResponse)
@@ -33,17 +37,20 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Optional<UserResponse> findUserById(Long id) {
+        log.debug("Finding user by id {}", id);
         return userRepository.findById(id)
                              .map(this::toResponse);
     }
 
     public void deleteUser(Long id) {
+        log.info("Deleting user id={}", id);
         User user = userRepository.findById(id)
             .orElseThrow(() -> new NoSuchElementException("User not found"));
         userRepository.delete(user);
     }
 
     public UserResponse updateUser(Long id, UserUpdateRequest request) {
+        log.info("Updating user id={}", id);
         User user = userRepository.findById(id)
             .orElseThrow(() -> new NoSuchElementException("User not found"));
         user.setFullName(request.getFullName());

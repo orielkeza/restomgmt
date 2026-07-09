@@ -21,10 +21,12 @@ import com.restomgmt.site.menu.services.MenuItemService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/menu/items")
 @RequiredArgsConstructor
+@Slf4j
 public class MenuItemController {
     private final MenuItemService menuItemService;
 
