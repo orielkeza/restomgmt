@@ -34,7 +34,7 @@ public class MenuItemController {
     }
 
     @GetMapping("/all")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MGMT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ResponseEntity<List<MenuItemResponse>> getAllItemsIncludingUnavailable() {
         return ResponseEntity.ok(menuItemService.getAllItems());
     }
@@ -54,7 +54,7 @@ public class MenuItemController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MGMT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ResponseEntity<MenuItemResponse> createItem(@Valid @RequestBody MenuItemRequest request) {
         try {
             return ResponseEntity.status(HttpStatus.CREATED)
@@ -65,7 +65,7 @@ public class MenuItemController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MGMT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ResponseEntity<MenuItemResponse> updateItem(
             @PathVariable Long id,
             @Valid @RequestBody MenuItemRequest request) {
