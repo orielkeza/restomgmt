@@ -28,6 +28,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 //this does the setup
 //creates the permissions, then the roles, assign permissions to roles, then create users and assign a role to them
@@ -36,6 +37,7 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 @Profile("!uat")
+@Slf4j
 public class SetupDataLoader implements ApplicationListener<ContextRefreshedEvent> {
 
     boolean alreadySetup = false;
@@ -58,6 +60,7 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
         if(alreadySetup) {
             return;
         }
+        log.info("Running initial data loader");
         Permission readPermission 
          = createPermissionIfNotFound ("READ_PERMISSION");
         Permission writePermission
@@ -88,6 +91,7 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
             user.setUsername("testUsername");
             user.setRoles(adminRole.map(List::of).orElseGet(List::of));
             userRepository.save(user);
+            log.info("Created sample admin user 'testUsername'");
         }
 
         alreadySetup=true;

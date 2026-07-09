@@ -15,11 +15,13 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtRequestFilter extends OncePerRequestFilter {
     
     private final JwtUtil jwtUtil;
@@ -35,6 +37,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 String username = null;
                 String jwt = null;
 
+                log.debug("Filtering request {} {}", request.getMethod(), request.getRequestURI());
+
                 if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
                     jwt = authorizationHeader.substring(7);
                     username = jwtUtil.extractUsername(jwt);
@@ -49,7 +53,10 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                         );
                         usernamePasswordAuthenticationToken
                                 .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);        
+                        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                        log.debug("Set security context for user={}", username);
+                    } else {
+                        log.debug("Invalid JWT for user={}", username);
                     }
                 }
                 chain.doFilter(request, response);
