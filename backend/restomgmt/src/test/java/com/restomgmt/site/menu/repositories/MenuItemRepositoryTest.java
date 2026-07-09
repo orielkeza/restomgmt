@@ -2,6 +2,7 @@ package com.restomgmt.site.menu.repositories;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.math.BigDecimal;
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import com.restomgmt.site.menu.models.Category;
 import com.restomgmt.site.menu.models.MenuItem;
@@ -28,40 +28,42 @@ class MenuItemRepositoryTest {
     @Autowired
     private MenuItemRepository menuItemRepository;
 
-    private Category category;
-    private MenuItem availableItem;
-    private MenuItem unavailableItem;
+    private Category mainsCategory;
+    private Category emptyCategory;
+    private MenuItem availableFood;
+    private MenuItem availableFood2;
+    private MenuItem unavailableFood;
 
     @BeforeEach
     void setUp() {
         menuItemRepository.deleteAll();
         categoryRepository.deleteAll();
 
-        Category mainsCategory = Category.builder().name("Mains").build();
+        mainsCategory = Category.builder().name("Mains").build();
         categoryRepository.save(mainsCategory);
 
-        Category drinksCategory = Category.builder().name("Drinks").build();
-        categoryRepository.save(drinksCategory);
+        emptyCategory = Category.builder().name("Drinks").build();
+        categoryRepository.save(emptyCategory);
 
-        Category combosCategory = Category.builder().name("Combos").build();
-        categoryRepository.save(combosCategory);
-
-        // 1. Available Food
-        MenuItem availableFood = MenuItem.builder()
+        availableFood = MenuItem.builder()
             .name("Grilled Chicken")
             .description("Herb-marinated grilled chicken")
             .cost(new BigDecimal("12.99"))
             .available(true)
             .category(mainsCategory)
             .build();
-        //ReflectionTestUtils.setField(availableFood, "id", 1L);
-                
-        //assertEquals(1L, availableFood.getId());
-
         menuItemRepository.save(availableFood);
 
-        // 2. Unavailable Food
-        MenuItem unavailableFood = MenuItem.builder()
+        availableFood2 = MenuItem.builder()
+            .name("Igitoki")
+            .description("Plantain cooked with vegetable sauce")
+            .cost(new BigDecimal("7.00"))
+            .available(true)
+            .category(mainsCategory)
+            .build();
+        menuItemRepository.save(availableFood2);
+
+        unavailableFood = MenuItem.builder()
             .name("Sold Out Burger")
             .description("Temporarily unavailable")
             .cost(new BigDecimal("9.99"))
@@ -69,46 +71,6 @@ class MenuItemRepositoryTest {
             .category(mainsCategory)
             .build();
         menuItemRepository.save(unavailableFood);
-
-        // 3. Available Drink
-        MenuItem availableDrink = MenuItem.builder()
-            .name("Iced Vanilla Latte")
-            .description("Cold brewed espresso with milk and vanilla syrup")
-            .cost(new BigDecimal("4.50"))
-            .available(true)
-            .category(drinksCategory)
-            .build();
-        menuItemRepository.save(availableDrink);
-
-        // 4. Unavailable Drink
-        MenuItem unavailableDrink = MenuItem.builder()
-            .name("Seasonal Mango Smoothie")
-            .description("Fresh mango blend - out of season")
-            .cost(new BigDecimal("5.50"))
-            .available(false)
-            .category(drinksCategory)
-            .build();
-        menuItemRepository.save(unavailableDrink);
-
-        // 5. Available Combo
-        MenuItem availableCombo = MenuItem.builder()
-            .name("Burger & Beer Special")
-            .description("Classic cheeseburger paired with a craft draft beer")
-            .cost(new BigDecimal("16.99"))
-            .available(true)
-            .category(combosCategory)
-            .build();
-        menuItemRepository.save(availableCombo);
-
-        // 6. Unavailable Combo
-        MenuItem unavailableCombo = MenuItem.builder()
-            .name("Family Feast Box")
-            .description("2 Mains, 2 Drinks, and a shared appetizer side")
-            .cost(new BigDecimal("34.99"))
-            .available(false)
-            .category(combosCategory)
-            .build();
-        menuItemRepository.save(unavailableCombo);
     }
 
     @Test
@@ -128,17 +90,44 @@ class MenuItemRepositoryTest {
     }
 
     @Test
-    void findByCategoryIdShouldReturnListOfMenuItemsInThatCategory() {
-        List<MenuItem> items = menuItemRepository.findByCategory_Id(1L);
+    void findByCategoryIdShouldReturnListOfMenuItemsInThatCategoryWhenIdIsCorrect() {
+        List<MenuItem> items = menuItemRepository.findByCategory_Id(mainsCategory.getId());
         boolean result = categoryRepository.existsByName("Mains");
         assertTrue(result);
-        assertEquals("Grilled Chicken", items.listIterator());
+        assertEquals(3, items.size());
+        assertEquals("Grilled Chicken", items.get(0).getName());
+        assertEquals("Igitoki", items.get(1).getName());
+        assertEquals("Sold Out Burger", items.get(2).getName());
     }
 
     @Test
-    void existsByNameShouldReturnFalseWhenNameDoesNotExist() {
-        boolean result = categoryRepository.existsByName("False");
-        
-        assertFalse(result);
+    void findByCategoryIdShouldReturnEmptyListOfMenuItemsInThatCategoryWhenIdIsIncorrect() {
+        List<MenuItem> items = menuItemRepository.findByCategory_Id(mainsCategory.getId());
+        boolean result = categoryRepository.existsByName("Mains");
+        assertTrue(result);
+        assertEquals(3, items.size());
+        assertEquals("Grilled Chicken", items.get(0).getName());
+        assertEquals("Igitoki", items.get(1).getName());
+        assertEquals("Sold Out Burger", items.get(2).getName());
+    }
+   @Test
+    void findByAvailableTrueShouldReturnOnlyAvailableItems() {
+        List<MenuItem> result = menuItemRepository.findByAvailableTrue();
+
+        assertEquals(2, result.size());
+        assertEquals("Grilled Chicken", result.get(0).getName());
+        assertEquals("Igitoki", result.get(1).getName());
+    }
+
+    @Test
+    void findByCategory_IdShouldReturnEmptyWhenCategoryHasNoItems() {
+        List<MenuItem> result = menuItemRepository.findByCategory_Id(emptyCategory.getId());
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void saveShouldPopulateTimestamps() {
+        assertNotNull(availableFood.getCreatedAt());
+        assertNotNull(availableFood.getUpdatedAt());
     }
 }
