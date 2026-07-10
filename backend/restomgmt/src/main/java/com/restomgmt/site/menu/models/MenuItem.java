@@ -2,6 +2,8 @@ package com.restomgmt.site.menu.models;
 
 import java.math.BigDecimal;
 
+import com.restomgmt.site.BaseEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
