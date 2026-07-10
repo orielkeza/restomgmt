@@ -4,7 +4,10 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -14,9 +17,14 @@ import java.util.function.Function;
 import javax.crypto.SecretKey;
 
 @Component
+@Slf4j
 public class JwtUtil {
     //this is the signing key, should not be hardcoded used env vars
-    private String secret = "secret";
+    @Value("${security.jwt.secret}")
+    private String secret;
+
+    @Value("${security.jwt.expiration-ms}")
+    private long expirationMs;
 
 
     //generic helper function that decodes the token into a claims object the applies what extrator was passed by type, <T> means it works for nay return type
@@ -54,15 +62,18 @@ public class JwtUtil {
     }
 
     public String generateToken(String username) {
+        log.debug("Generating token for user={}", username);
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, username);
+        String token = createToken(claims, username);
+        log.trace("Token created (truncated) for user={}", username);
+        return token;
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
         return Jwts.builder().claims(claims)
                              .subject(subject)
                              .issuedAt(new Date(System.currentTimeMillis()))
-                             .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
+                             .expiration(new Date(System.currentTimeMillis() + expirationMs))
                              //.signWith(SignatureAlgorithm.HS256, secret)
                              .signWith(Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)))
                              .compact();
@@ -70,6 +81,8 @@ public class JwtUtil {
 
     public Boolean validateToken(String token, String username) {
         final String extractedUsername = extractUsername(token);
-        return (extractedUsername.equals(username) && !isTokenExpired(token));
+        boolean valid = (extractedUsername.equals(username) && !isTokenExpired(token));
+        log.debug("Validating token for user={} -> {}", username, valid);
+        return valid;
     }
 }

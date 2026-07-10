@@ -2,10 +2,9 @@ package com.restomgmt.site.user.config;
 
 import com.restomgmt.site.user.filter.JwtRequestFilter;
 import com.restomgmt.site.user.security.AuthenticationService;
-//import com.restomgmt.site.user.util.JwtUtil;
-
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
@@ -20,7 +19,6 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -34,14 +32,15 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
-@Profile("!test")
+@Slf4j
+@Profile("!uat")
 public class SecurityConfig {
     
     private final AuthenticationService authenticationService;
 
-    //private final JwtUtil jwtUtil;
-
     private final JwtRequestFilter jwtAuthFilter;
+
+    private final PasswordEncoder passwordEncoder;
 
     //decoupled property extractions from application.properties to avoid hardcoding
     @Value("${security.public-urls}")
@@ -60,18 +59,15 @@ public class SecurityConfig {
         
             authenticationManagerBuilder
                 .userDetailsService(authenticationService)
-                .passwordEncoder(passwordEncoder());
+                .passwordEncoder(passwordEncoder);
 
             return authenticationManagerBuilder.build();
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        log.debug("SecurityConfig filterChain loading");
+        log.debug("PUBLIC URLS: {}", java.util.Arrays.toString(publicUrls));
         http
             .authorizeHttpRequests(auth->auth
                 .requestMatchers(publicUrls).permitAll()
@@ -84,7 +80,7 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors->cors.configurationSource(corsConfigurationSource()));
             
-
+            log.debug("PUBLIC URLS: {}", java.util.Arrays.toString(publicUrls));
         return http.build();
     }
 

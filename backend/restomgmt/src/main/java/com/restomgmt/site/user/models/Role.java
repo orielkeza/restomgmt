@@ -3,6 +3,7 @@ package com.restomgmt.site.user.models;
 //import java.time.LocalDate;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -13,21 +14,20 @@ import lombok.ToString;
 //import org.hibernate.annotations.CreationTimestamp;
 import java.util.Collection;
 
-import com.restomgmt.site.user.permission.Permission;
-
-
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-//@Table(name = "roles")
+@Table(name = "roles")
+@Builder
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false, length = 254)
     private String name;
 
     @ManyToMany(mappedBy = "roles")
