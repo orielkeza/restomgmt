@@ -1,8 +1,11 @@
 package com.restomgmt.site.user.services;
 
+import com.restomgmt.site.user.dto.RoleAssignmentRequest;
 import com.restomgmt.site.user.dto.UserResponse;
 import com.restomgmt.site.user.dto.UserUpdateRequest;
+import com.restomgmt.site.user.models.Role;
 import com.restomgmt.site.user.models.User;
+import com.restomgmt.site.user.repositories.RoleRepository;
 import com.restomgmt.site.user.repositories.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -20,6 +23,8 @@ import java.util.stream.Collectors;
 public class UserService {
     
     private final UserRepository userRepository;
+
+    private final RoleRepository roleRepository;
 
     public User addUser (User user) {
         log.info("Adding user {}", user.getUsername());
@@ -56,6 +61,23 @@ public class UserService {
         user.setFullName(request.getFullName());
         user.setEmail(request.getEmail());
         return toResponse(userRepository.save(user));
+    }
+
+    public UserResponse assignRole(Long userId, RoleAssignmentRequest request) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new NoSuchElementException("User not found"));
+
+        Role role = roleRepository.findByName(request.getRoleName())
+            .orElseThrow(() -> new NoSuchElementException("Role not found: " + request.getRoleName()));
+
+        Collection<Role> roles = new ArrayList<>(user.getRoles());
+        if (!roles.contains(role)) {
+            roles.add(role);
+            user.setRoles(roles);
+            userRepository.save(user);
+        }
+
+        return toResponse(user);
     }
 
     private UserResponse toResponse(User user) {

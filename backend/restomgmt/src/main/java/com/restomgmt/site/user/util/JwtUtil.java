@@ -6,13 +6,18 @@ import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.crypto.SecretKey;
 
@@ -61,13 +66,25 @@ public class JwtUtil {
         return extractExpiration(token).before(new Date());
     }
 
-    public String generateToken(String username) {
+    public String generateToken(String username, Collection<? extends GrantedAuthority> authorities) {
         log.debug("Generating token for user={}", username);
         Map<String, Object> claims = new HashMap<>();
+        claims.put("roles", authorities.stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList()));
         String token = createToken(claims, username);
         log.trace("Token created (truncated) for user={}", username);
         return token;
     }
+
+    public List<GrantedAuthority> extractRoles(String token) {
+    Claims claims = extractAllClaims(token);
+    List<String> roles = claims.get("roles", List.class);
+    if (roles == null) return List.of();
+    return roles.stream()
+        .map(SimpleGrantedAuthority::new)
+        .collect(Collectors.toList());
+}
 
     private String createToken(Map<String, Object> claims, String subject) {
         return Jwts.builder().claims(claims)
