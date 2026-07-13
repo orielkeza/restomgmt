@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -28,6 +30,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import com.restomgmt.site.user.models.Role;
 import com.restomgmt.site.user.models.User;
+import com.restomgmt.site.user.repositories.RoleRepository;
 import com.restomgmt.site.user.repositories.UserRepository;
 import com.restomgmt.site.user.security.AuthenticationService;
 import com.restomgmt.site.user.util.JwtUtil;
@@ -37,6 +40,9 @@ class AuthenticationServiceTest {
     
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private RoleRepository roleRepository;
 
     @Mock
     private JwtUtil jwtUtil;
@@ -74,9 +80,13 @@ class AuthenticationServiceTest {
     @Test
     public void authenticateShouldReturnTokenWhenCredentialsAreValid() {
         assertNotNull(user);
+        
+        // Stub the repository to return the user
         when(userRepository.findByUsername("theJohnD"))
             .thenReturn(Optional.of(user));
-        when(jwtUtil.generateToken("theJohnD"))
+            
+        // Update: Match the new two-parameter signature using mockito's any() or specific collections
+        when(jwtUtil.generateToken(eq("theJohnD"), anyCollection()))
             .thenReturn("mock-jwt-token");
 
         String token = authenticationService.authenticate("theJohnD", "password");
@@ -135,10 +145,15 @@ class AuthenticationServiceTest {
     @Test
     public void registerShouldEncodePasswordAndSaveUser() {
         assertNotNull(user);
+        Role userRole = new Role();
+        userRole.setName("ROLE_USER");
+
         when(passwordEncoder.encode("apassword"))
              .thenReturn("encodedPass123!");
+        when(roleRepository.findByName("ROLE_USER"))
+             .thenReturn(Optional.of(userRole));
         when(userRepository.save(any(User.class)))
-             .thenReturn(user);
+             .thenAnswer(invocation -> invocation.getArgument(0));
 
         User newUser = User.builder()
                         .password("apassword")
@@ -148,9 +163,12 @@ class AuthenticationServiceTest {
                 
         assertEquals(1L, newUser.getId());
 
-        authenticationService.registerUser(newUser);
+        User registered = authenticationService.registerUser(newUser);
 
-        assertEquals("encodedPass123!", newUser.getPassword());
+        assertEquals("encodedPass123!", registered.getPassword());
+        assertNotNull(registered.getRoles());
+        assertTrue(registered.getRoles().stream()
+                         .anyMatch(role -> "ROLE_USER".equals(role.getName())));
         verify(userRepository).save(newUser);
     }
 }

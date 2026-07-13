@@ -59,7 +59,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    void findByUsernameShouldReturnNullWhenUsernameIsIncorrect() {
+    void findByUsernameShouldReturnEmptyWhenUsernameIsIncorrect() {
         Optional<User> user = userRepository.findByUsername("falseUser");
         
         assertFalse(user.isPresent());
@@ -75,7 +75,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    void findByEmailShouldReturnNullWhenEmailIsCorrect() {
+    void findByEmailShouldReturnEmptyWhenEmailIsCorrect() {
         Optional<User> user = userRepository.findByEmail("falseemail@email.com");
         
         assertFalse(user.isPresent());

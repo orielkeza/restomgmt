@@ -1,4 +1,4 @@
-package com.restomgmt.site.menu.models;
+package com.restomgmt.site;
 
 import java.time.LocalDateTime;
 
