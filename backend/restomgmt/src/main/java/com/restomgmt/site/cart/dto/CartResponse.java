@@ -1,5 +1,18 @@
 package com.restomgmt.site.cart.dto;
 
-public class CartResponse {
-    
+import java.math.BigDecimal;
+import java.util.List;
+
+import com.restomgmt.site.BaseEntity;
+
+import lombok.Builder;
+import lombok.Getter;
+
+@Getter
+@Builder
+public class CartResponse extends BaseEntity {
+    private Long cartId;
+    private String username;
+    private List<CartItemResponse> items;
+    private BigDecimal total;
 }
