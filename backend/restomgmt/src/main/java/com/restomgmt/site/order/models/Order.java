@@ -2,6 +2,7 @@ package com.restomgmt.site.order.models;
 
 import java.util.ArrayList;
 import java.util.List;
+//import java.util.UUID;
 
 import com.restomgmt.site.BaseEntity;
 import com.restomgmt.site.user.models.User;
@@ -37,6 +38,10 @@ public class Order extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    //best practice, cannot be guessed
+    //possible future improvement across the project
+    //private UUID uuid = UUID.randomUUID();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

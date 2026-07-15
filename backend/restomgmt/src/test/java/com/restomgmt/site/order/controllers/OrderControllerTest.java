@@ -46,7 +46,7 @@ import com.restomgmt.site.user.util.JwtUtil;
     })
 @TestPropertySource(properties = {
     "spring.jpa.enabled=false"
-}) //it's needed for the repos but here it oulls it into a web-slice test and since the controller test doesn't have a db, it's looking for things that are not there
+}) //it's needed for the repos but here it pulls it into a web-slice test and since the controller test doesn't have a db, it's looking for things that are not there
 @ActiveProfiles("uat")
 class OrderControllerTest {
 

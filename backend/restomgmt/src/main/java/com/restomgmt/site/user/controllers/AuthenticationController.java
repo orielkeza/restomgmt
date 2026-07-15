@@ -1,5 +1,8 @@
 package com.restomgmt.site.user.controllers;
 
+import com.restomgmt.site.user.dto.ForgotPasswordRequest;
+import com.restomgmt.site.user.dto.RegisterRequest;
+import com.restomgmt.site.user.dto.ResetPasswordRequest;
 import com.restomgmt.site.user.models.User;
 import com.restomgmt.site.user.security.AuthenticationService;
 
@@ -7,40 +10,89 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.NoSuchElementException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 @Slf4j
 public class AuthenticationController {
     
     private final AuthenticationService authenticationService;
-    
 
     @PostMapping("/login")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody User user) {
         try {
-            log.info("POST /api/auth/login - authentication attempt for user={}", user.getUsername());
-            String token = authenticationService.authenticate(user.getUsername(), user.getPassword());
-            log.info("Authentication successful for user={}", user.getUsername());
+            String token = authenticationService.authenticate(
+                user.getUsername(), user.getPassword());
             return ResponseEntity.ok(token);
         } catch (BadCredentialsException e) {
-            log.warn("Authentication failed for user={}", user.getUsername());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body("Invalid credentials");
+        } catch (DisabledException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body("Email not verified. Please check your inbox.");
         }
     }
 
-    @PostMapping("/register") 
-    public ResponseEntity<?> registerUser(@Valid @RequestBody User user) {
-        //this is a no go because this returns a raw user including the hashed password which is a risk
-        //return ResponseEntity.ok(authenticationService.registerUser(user));
-        log.info("POST /api/auth/register - registering user={}", user.getUsername());
-        authenticationService.registerUser(user);
-        log.info("User registered: {}", user.getUsername());
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    @PostMapping("/register")
+    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest request) {
+        try {
+            authenticationService.register(request);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                .body("Registration successful. Please verify your email.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/verify-email")
+    public ResponseEntity<?> verifyEmail(@RequestParam String token) {
+        try {
+            authenticationService.verifyEmail(token);
+            return ResponseEntity.ok("Email verified successfully. You can now login.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(
+            @Valid @RequestBody ForgotPasswordRequest request) {
+        authenticationService.requestPasswordReset(request.getEmail());
+        // Always return same message for security
+        return ResponseEntity.ok(
+            "If that email is registered you will receive a reset link shortly.");
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(
+            @Valid @RequestBody ResetPasswordRequest request) {
+        try {
+            authenticationService.resetPassword(request);
+            return ResponseEntity.ok("Password reset successfully.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/resend-verification")
+    public ResponseEntity<?> resendVerification(
+            @Valid @RequestBody ForgotPasswordRequest request) {
+        try {
+            authenticationService.resendVerification(request.getEmail());
+            return ResponseEntity.ok("Verification email sent.");
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.ok(
+                "If that email is registered you will receive a verification email.");
+        }
     }
 }
