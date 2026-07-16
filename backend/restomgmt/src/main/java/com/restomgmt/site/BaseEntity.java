@@ -1,4 +1,4 @@
-package com.restomgmt.site.menu.models;
+package com.restomgmt.site;
 
 import java.time.LocalDateTime;
 
@@ -12,10 +12,10 @@ import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
 @MappedSuperclass //this is not an entity but an abstract class that will be in herited and used
 @EntityListeners(AuditingEntityListener.class)
+@Getter
+@Setter
 public abstract class BaseEntity {
    
     @CreatedDate

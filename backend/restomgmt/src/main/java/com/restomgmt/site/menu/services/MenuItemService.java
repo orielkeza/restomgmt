@@ -103,4 +103,12 @@ public class MenuItemService {
             .updatedAt(item.getUpdatedAt())
             .build();
     } 
+
+    @Transactional
+    public MenuItemResponse toggleAvailability(Long id) {
+        MenuItem item = menuItemRepository.findById(id)
+            .orElseThrow(() -> new NoSuchElementException("Menu item not found"));
+        item.setAvailable(!item.isAvailable());
+        return toResponse(menuItemRepository.save(item));
+    }
 }

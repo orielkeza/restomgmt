@@ -3,6 +3,8 @@ package com.restomgmt.site.user.filter;
 import com.restomgmt.site.user.security.AuthenticationService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import com.restomgmt.site.user.util.JwtUtil;
+
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -18,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -45,20 +48,29 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 }
 
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    UserDetails userDetails = this.authenticationService.loadUserByUsername(username);
-
-                    if (jwtUtil.validateToken(jwt, userDetails.getUsername())) {
-                        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-                                userDetails, null, userDetails.getAuthorities()
-                        );
-                        usernamePasswordAuthenticationToken
-                                .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                    
+                    // 1. Validate the token first before doing any heavy lifting or context setting
+                    if (jwtUtil.validateToken(jwt, username)) {
+                        
+                        // 2. Extract roles directly from the JWT claims (Stateless approach)
+                        List<GrantedAuthority> authorities = jwtUtil.extractRoles(jwt);
+                        
+                        // 3. Create the authentication token using the username string directly
+                        UsernamePasswordAuthenticationToken authToken = 
+                                new UsernamePasswordAuthenticationToken(username, null, authorities);
+                                
+                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        
+                        // 4. Set the security context
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
                         log.debug("Set security context for user={}", username);
+                        
                     } else {
                         log.debug("Invalid JWT for user={}", username);
                     }
                 }
+
+                // Always ensure the filter chain continues outside the block
                 chain.doFilter(request, response);
               }
 }

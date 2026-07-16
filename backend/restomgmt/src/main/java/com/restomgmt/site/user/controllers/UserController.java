@@ -3,6 +3,7 @@ package com.restomgmt.site.user.controllers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import com.restomgmt.site.user.dto.RoleAssignmentRequest;
 import com.restomgmt.site.user.dto.UserResponse;
 import com.restomgmt.site.user.dto.UserUpdateRequest;
 import com.restomgmt.site.user.services.UserService;
@@ -74,6 +75,18 @@ public class UserController {
         log.warn("Access denied: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
                             .body("Access denied: insufficient permissions");
+    }
+
+    @PutMapping("/{id}/roles")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserResponse> assignRole(
+            @PathVariable Long id,
+            @RequestBody RoleAssignmentRequest request) {
+        try {
+            return ResponseEntity.ok(userService.assignRole(id, request));
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
 }

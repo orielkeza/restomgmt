@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -36,7 +37,7 @@ public class MenuItemController {
     }
 
     @GetMapping("/all")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MGMT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ResponseEntity<List<MenuItemResponse>> getAllItemsIncludingUnavailable() {
         return ResponseEntity.ok(menuItemService.getAllItems());
     }
@@ -56,7 +57,7 @@ public class MenuItemController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MGMT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ResponseEntity<MenuItemResponse> createItem(@Valid @RequestBody MenuItemRequest request) {
         try {
             return ResponseEntity.status(HttpStatus.CREATED)
@@ -67,7 +68,7 @@ public class MenuItemController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MGMT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
     public ResponseEntity<MenuItemResponse> updateItem(
             @PathVariable Long id,
             @Valid @RequestBody MenuItemRequest request) {
@@ -84,6 +85,16 @@ public class MenuItemController {
         try {
             menuItemService.deleteItem(id);
             return ResponseEntity.noContent().build();
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PatchMapping("/{id}/availability")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    public ResponseEntity<MenuItemResponse> toggleAvailability(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(menuItemService.toggleAvailability(id));
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         }
