@@ -1,33 +1,33 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
+import { menuApi, type MenuItemResponse, type CategoryResponse } from '../../api/menuApi';
 
-export interface MenuItem {
-    id: number;
-    name: string;
-    price: number;
-    category: 'food' | 'drinks' | 'combo';
-    isPopular: boolean;
-}
-
-export type MenuCategoryTab = 'all' | 'food' | 'drinks' | 'combo' | 'popular';
+export type MenuCategoryTab = string; // categoryName, or 'all'
 
 interface MenuState {
-    items: MenuItem[];
-    activeTab: MenuCategoryTab
+    items: MenuItemResponse[];
+    categories: CategoryResponse[];
+    activeTab: MenuCategoryTab;
+    status: 'idle' | 'loading' | 'succeeded' | 'failed';
+    error: string | null;
 }
 
 const initialState: MenuState = {
+    items: [],
+    categories: [],
     activeTab: 'all',
-    items: [
-        {id: 1, name: 'Burger', price: 5500, category: 'food', isPopular: true},
-        {id: 2, name: 'Pizza', price: 15000, category: 'food', isPopular: true},
-        {id: 3, name: 'Igitoki', price: 4000, category: 'food', isPopular: false},
-        {id: 4, name: 'Coke', price: 1000, category: 'drinks', isPopular: true},
-        {id: 5, name: '5 Piece Chicken Combo', price: 2000, category: 'combo', isPopular: true},
-        {id: 6, name: 'Coffee', price: 2500, category: 'drinks', isPopular: false},
-        {id: 7, name: 'Seafood Mix', price: 50000, category: 'combo', isPopular: false},
-    ],
+    status: 'idle',
+    error: null,
 };
+
+// fetches both items and categories together since the menu screen always needs both
+export const fetchMenuData = createAsyncThunk('menu/fetchMenuData', async () => {
+    const [items, categories] = await Promise.all([
+        menuApi.getAvailableItems(),
+        menuApi.getCategories(),
+    ]);
+    return { items, categories };
+});
 
 export const menuSlice = createSlice({
     name: 'menu',
@@ -36,6 +36,22 @@ export const menuSlice = createSlice({
         setActiveTab: (state, action: PayloadAction<MenuCategoryTab>) => {
             state.activeTab = action.payload;
         },
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(fetchMenuData.pending, (state) => {
+                state.status = 'loading';
+                state.error = null;
+            })
+            .addCase(fetchMenuData.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                state.items = action.payload.items;
+                state.categories = action.payload.categories;
+            })
+            .addCase(fetchMenuData.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.error.message ?? 'Failed to load menu';
+            });
     },
 });
 

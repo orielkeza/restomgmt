@@ -1,88 +1,150 @@
 import './App.css';
-import {useState} from 'react';
+import { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { type RootState } from './store/store';
 import { LoginView } from './features/auth/LoginView';
 import { RegistrationView } from './features/auth/RegistrationView';
 import { CartView } from './features/cart/CartView';
 import { MenuView } from './features/menu/MenuView';
 import { DashboardView } from './features/dashboard/DashboardView';
+import { OrderView } from './features/order/OrderView';
+import { logout } from './features/auth/authSlice';
+import { theme } from './theme';
+
+type ViewId = 'dashboard' | 'orders' | 'menu' | 'cart' | 'booking';
+type AuthViewId = 'login' | 'registration';
+
+const NAV_ITEMS: { id: ViewId; label: string; icon: string }[] = [
+  { id: 'dashboard', label: 'Dashboard', icon: '▦' },
+  { id: 'orders',    label: 'Orders',    icon: '🧾' },
+  { id: 'menu',      label: 'Menu',      icon: '🍽' },
+  { id: 'cart',      label: 'Cart',      icon: '🛒' },
+  { id: 'booking',   label: 'Bookings',  icon: '📅' },
+];
 
 function App() {
-//local state to track which screen we want to view rn
-const [currentView, setCurrentView] = useState<'login' | 'registration' | 'cart' | 'menu' | 'dashboard' | 'booking' >('login');
+  const [currentView, setCurrentView] = useState<ViewId>('dashboard');
+  const [authView, setAuthView] = useState<AuthViewId>('login');
+  const dispatch = useDispatch();
 
-const renderView = () => {
-  switch (currentView) {
-    case 'login':
-      return <LoginView />;
-    case 'registration':
-      return <RegistrationView />;
-    case 'cart':
-      return <CartView />;
-    case 'menu':
-      return <MenuView />;
-    case 'dashboard':
-      return <DashboardView />;
-    default:
-      return <LoginView />;
+  const isLoggedIn = useSelector((state: RootState) => state.auth.isLoggedIn);
+  const username = useSelector((state: RootState) => state.auth.username);
+
+  if (!isLoggedIn) {
+    return authView === 'login' ? (
+      <LoginView onSwitchToRegister={() => setAuthView('registration')} />
+    ) : (
+      <RegistrationView onSwitchToLogin={() => setAuthView('login')} />
+    );
   }
-};
+
+  const renderView = () => {
+    switch (currentView) {
+      case 'dashboard': return <DashboardView />;
+      case 'orders':    return <OrderView />;
+      case 'menu':      return <MenuView />;
+      case 'cart':      return <CartView />;
+      default:          return <DashboardView />;
+    }
+  };
+
+  const activeLabel = NAV_ITEMS.find((n) => n.id === currentView)?.label ?? 'Dashboard';
 
   return (
-    <div style={{ position: 'relative' }}>
-      {}
-      <div style={{
-        position: 'absolute',
-        top: '10px',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        zIndex: 1000,
-        backgroundColor: 'rgba(255, 255, 255, 0.9)',
-        padding: '8px 16px',
-        borderRadius: '20px',
-        boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+    <div style={{ display: 'flex', minHeight: '100vh', background: theme.colors.bg, fontFamily: theme.font }}>
+      {/* Sidebar */}
+      <aside style={{
+        width: '230px',
+        background: theme.colors.brandDark,
+        padding: '24px 16px',
         display: 'flex',
-        gap: '12px'
+        flexDirection: 'column',
       }}>
-        <button 
-          onClick={() => setCurrentView('login')}
-          style={{ fontWeight: currentView === 'login' ? 'bold' : 'normal', cursor: 'pointer' }}
-        >
-          View Login
-        </button>
-        <button
-          onClick={()=> setCurrentView('registration')}
-          style={{ fontWeight: currentView === 'registration' ? 'bold' : 'normal', cursor: 'pointer' }}
-          >
-            View Registration
-        </button>
-        <button 
-          onClick={() => setCurrentView('cart')}
-          style={{ fontWeight: currentView === 'cart' ? 'bold' : 'normal', cursor: 'pointer' }}
-        >
-          View Cart
-        </button>
-        <button
-          onClick={() => setCurrentView('menu')}
-          style={{ fontWeight: currentView === 'menu' ? 'bold' : 'normal', cursor: 'pointer' }}
-          >
-            View Menu
-        </button>
-        <button
-          onClick={() => setCurrentView('dashboard')}
-          style={{ fontWeight: currentView === 'dashboard' ? 'bold' : 'normal', cursor: 'pointer' }}
-          >
-            View Dashboard
-        </button>
-        <button
-          onClick={() => setCurrentView('booking')}
-          style={{ fontWeight: currentView === 'booking' ? 'bold' : 'normal', cursor: 'pointer' }}
-          >
-            View Booking
-        </button>
-      </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '0 8px 32px 8px' }}>
+          <div style={{
+            width: '32px', height: '32px', borderRadius: theme.radius.sm,
+            background: theme.colors.brand, color: 'white',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold',
+          }}>
+            R
+          </div>
+          <span style={{ fontWeight: 700, fontSize: '16px', color: 'white', letterSpacing: '0.2px' }}>
+            Restaurant MS
+          </span>
+        </div>
 
-      {}
-      {renderView()}
+        <nav style={{ flex: 1 }}>
+          {NAV_ITEMS.map((item) => {
+            const isActive = currentView === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setCurrentView(item.id)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '10px',
+                  width: '100%', textAlign: 'left',
+                  padding: '10px 12px', marginBottom: '4px',
+                  borderRadius: theme.radius.sm, border: 'none', cursor: 'pointer',
+                  background: isActive ? theme.colors.brand : 'transparent',
+                  color: isActive ? 'white' : 'rgba(255,255,255,0.75)',
+                  fontWeight: isActive ? 600 : 500,
+                  fontSize: '14px',
+                  transition: 'background 0.15s ease, color 0.15s ease',
+                }}
+              >
+                <span>{item.icon}</span>
+                {item.label}
+              </button>
+            );
+          })}
+        </nav>
+
+        <div style={{
+          borderTop: '1px solid rgba(255,255,255,0.12)',
+          paddingTop: '16px',
+          display: 'flex', alignItems: 'center', gap: '10px',
+        }}>
+          <div style={{
+            width: '32px', height: '32px', borderRadius: '50%',
+            background: theme.colors.brandDark, color: theme.colors.brand,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '13px',
+          }}>
+            {username?.[0]?.toUpperCase() ?? 'U'}
+          </div>
+          <div style={{ fontSize: '13px' }}>
+            <div style={{ fontWeight: 600, color: 'white' }}>{username ?? 'Guest'}</div>
+            <div style={{ color: 'rgba(255,255,255,0.6)' }}>Admin</div>
+          </div>
+          <button
+            onClick={() => dispatch(logout())}
+            title="Log out"
+            style={{
+              marginLeft: 'auto', border: 'none', background: 'none',
+              color: 'rgba(255,255,255,0.6)', cursor: 'pointer', fontSize: '16px',
+            }}
+          >
+            ⏻
+          </button>
+        </div>
+      </aside>
+
+      {/* Main column */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <header style={{
+          height: '64px', background: theme.colors.surface,
+          borderBottom: `1px solid ${theme.colors.border}`,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '0 32px',
+        }}>
+          <h1 style={{ fontSize: '18px', fontWeight: 700, color: theme.colors.textPrimary, margin: 0 }}>
+            {activeLabel}
+          </h1>
+        </header>
+
+        <main style={{ flex: 1, padding: '32px', overflowY: 'auto' }}>
+          {renderView()}
+        </main>
+      </div>
     </div>
   );
 }

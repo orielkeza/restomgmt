@@ -2,7 +2,7 @@ import React, { type JSX } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { type RootState } from '../../store/store';
 import { setActiveTab, type DashboardCategoryTab, type DashboardItem } from './dashboardSlice';
-
+import { theme } from '../../theme';
 
 export const DashboardView: React.FC = () => {
     const dispatch = useDispatch();
@@ -64,6 +64,12 @@ export const DashboardView: React.FC = () => {
         return false;
     });
 
+    const statCards = [
+        { label: 'Bookings', value: items.filter(i => i.category === 'bookings').length, bg: theme.colors.infoBg, fg: theme.colors.infoText },
+        { label: 'Orders in Progress', value: items.filter(i => i.category === 'orders' && i.status !== 'done').length, bg: theme.colors.warningBg, fg: theme.colors.warningText },
+        { label: 'Payments Pending', value: items.filter(i => i.category === 'payments' && i.payment === false).length, bg: theme.colors.successBg, fg: theme.colors.successText },
+    ];
+
     //category tabs
     const tabs: { id: DashboardCategoryTab; label: string } [] = [
         {id: 'orders', label: 'Orders'},
@@ -72,8 +78,19 @@ export const DashboardView: React.FC = () => {
     ];
 
     return (
+
         <div style={{ padding: '20px', fontFamily: 'sans-serif', maxWidth: '800px', margin: '0 auto'}}>
             <h1 style={{ color: '#333', marginBottom: '30px', textAlign: 'center', marginTop:'60px' }}>Dashboard</h1>
+            
+            {}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px' }}>
+                {statCards.map((c) => (
+                    <div key={c.label} style={{ background: c.bg, borderRadius: '12px', padding: '20px' }}>
+                        <div style={{ fontSize: '13px', color: '#555', fontWeight: 600 }}>{c.label}</div>
+                        <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#111' }}>{c.value}</div>
+                    </div>
+                ))}
+            </div>
 
             {}
             <div style={{ 
@@ -95,7 +112,7 @@ export const DashboardView: React.FC = () => {
                                 cursor: 'pointer',
                                 fontWeight: 'bold',
                                 fontSize: '14px',
-                                backgroundColor: isActive ? 'red' : '#f5f5f5',
+                                backgroundColor: theme.colors.brand,
                                 color: isActive ? 'white' : '#555',
                                 transition: 'all 0.2s ease'
                             }}

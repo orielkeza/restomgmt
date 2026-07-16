@@ -1,30 +1,15 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { loginSuccess } from '../auth/authSlice';
+import { theme } from '../../theme';
+
+interface RowData {
+    id: number;
+    item: string;
+    quantity: number;
+    price: number;
+}
 
 export const CartView: React.FC = () => {
-    const dispatch = useDispatch();
-
-    //keeps track of what the user types in real-time
-
     const [error, setError] = useState('');
-
-    //handles submission
-
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault(); //prevent from reloading the entire page
-
-        setError('');
-
-        //sends he action to redux so that the user is logged in gl');
-    };
-
-    interface RowData {
-        id: number;
-        item: string;
-        quantity: number;
-        price: number;
-    }
 
     const sampleData: RowData[] = [
         { id: 1, item: 'Chicken Wings', quantity: 1, price: 25 },
@@ -32,77 +17,67 @@ export const CartView: React.FC = () => {
         { id: 3, item: 'Fruit Salad', quantity: 2, price: 12 },
     ];
 
+    const total = sampleData.reduce((sum, row) => sum + row.quantity * row.price, 0);
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setError('');
+        // TODO: dispatch checkout/payment action
+    };
+
     return (
-        <div style={{
-            backgroundColor: '#E70B0D',
-            minHeight: '100vh', //elemtn must be at least as tall as the visible screen
-            display: 'flex', //makes all child elements flexible 
-            justifyContent: 'center',
-            alignItems: 'center',
-            fontFamily: 'sans-serif'
-        }}>
+        <div style={{ fontFamily: theme.font, maxWidth: '760px' }}>
+            <p style={{ margin: '0 0 20px 0', fontSize: '14px', color: theme.colors.textSecondary }}>
+                Review items before sending to payment.
+            </p>
 
-            {}
-            <div style={{
-                backgroundColor: 'white',
-                padding: '40px',
-                borderRadius: '0px',
-                width: '1000px',
-                height: '750px',
-                boxShadow: '0px 8px 16px rgba(0,0,0,1)',
-                textAlign: 'center'
-            }}>
-                <h1 style={{ margin: '0 0 4px 0', fontSize: '24px', color: '#333' }}>Cart</h1>                
-                {error && <p style={{ color: 'red', fontSize: '14px'}}>{error}</p>}
+            {error && <p style={{ color: theme.colors.dangerText, fontSize: '14px' }}>{error}</p>}
 
-                {}
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px'}}>
+            <form onSubmit={handleSubmit}>
+                <div style={{
+                    background: theme.colors.surface, borderRadius: theme.radius.md,
+                    boxShadow: theme.shadow.card, overflow: 'hidden', marginBottom: '20px',
+                }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                        {/* Table Header */}
                         <thead>
-                        <tr style={{ borderBottom: '2px solid #ccc' }}>
-                            <th style={{ padding: '12px' }}>Items</th>
-                            <th style={{ padding: '12px' }}>Quantity</th>
-                            <th style={{ padding: '12px' }}>Price</th>
-                        </tr>
-                        </thead>
-
-                        {/* Table Body */}
-                        <tbody>
-                        {sampleData.map((row) => (
-                            <tr key={row.id} style={{ borderBottom: '1px solid #eee' }}>
-                            <td style={{ padding: '12px' }}>{row.item}</td>
-                            <td style={{ padding: '12px' }}>{row.quantity}</td>
-                            <td style={{ padding: '12px' }}>{row.price}</td>
+                            <tr style={{ borderBottom: `1px solid ${theme.colors.border}`, color: theme.colors.textSecondary, fontSize: '13px' }}>
+                                <th style={{ padding: '14px 16px' }}>Item</th>
+                                <th style={{ padding: '14px 16px' }}>Quantity</th>
+                                <th style={{ padding: '14px 16px' }}>Price</th>
+                                <th style={{ padding: '14px 16px' }}>Subtotal</th>
                             </tr>
-                        ))}
+                        </thead>
+                        <tbody>
+                            {sampleData.map((row) => (
+                                <tr key={row.id} style={{ borderBottom: `1px solid ${theme.colors.border}`, fontSize: '14px' }}>
+                                    <td style={{ padding: '16px', fontWeight: 500 }}>{row.item}</td>
+                                    <td style={{ padding: '16px', color: theme.colors.textSecondary }}>{row.quantity}</td>
+                                    <td style={{ padding: '16px', color: theme.colors.textSecondary }}>${row.price.toFixed(2)}</td>
+                                    <td style={{ padding: '16px', fontWeight: 700 }}>${(row.quantity * row.price).toFixed(2)}</td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
+                </div>
+
+                <div style={{
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                    background: theme.colors.surface, borderRadius: theme.radius.md,
+                    boxShadow: theme.shadow.card, padding: '20px 24px',
+                }}>
+                    <div>
+                        <div style={{ fontSize: '13px', color: theme.colors.textSecondary }}>Total</div>
+                        <div style={{ fontSize: '24px', fontWeight: 700, color: theme.colors.textPrimary }}>${total.toFixed(2)}</div>
+                    </div>
                     <button type="submit" style={{
-                        backgroundColor: '#FFCC00',
-                        color: 'white',
-                        border: 'none',
-                        padding: '20px',
-                        borderRadius: '6px',
-                        fontWeight: 'bold',
-                        cursor: 'pointer',
-                        marginTop: '20px',
-                        fontSize: '20px'
+                        backgroundColor: theme.colors.brand, color: 'white', border: 'none',
+                        padding: '14px 28px', borderRadius: theme.radius.sm, fontWeight: 'bold',
+                        cursor: 'pointer', fontSize: '15px',
                     }}>
-                        Pay With Momo
+                        Pay with Momo
                     </button>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
     );
-};
-
-//reusable basic cc object for inputs
-
-const inputStyle: React.CSSProperties = {
-    padding: '12px',
-    borderRadius: '6px',
-    border: '1px solid #ccc',
-    fontSize: '14px',
-    backgroundColor: '#f9f9f9'
 };
