@@ -5,7 +5,6 @@ import { RegistrationView } from './features/auth/RegistrationView';
 import { CartView } from './features/cart/CartView';
 import { MenuView } from './features/menu/MenuView';
 import { DashboardView } from './features/dashboard/DashboardView';
-import { SeatBookingView } from './features/booking/SeatBookingView';
 
 function App() {
 //local state to track which screen we want to view rn
@@ -23,8 +22,6 @@ const renderView = () => {
       return <MenuView />;
     case 'dashboard':
       return <DashboardView />;
-    case 'booking':
-      return <SeatBookingView />;
     default:
       return <LoginView />;
   }
