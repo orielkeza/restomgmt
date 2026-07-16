@@ -51,6 +51,10 @@ public class Order extends BaseEntity {
     @Column(nullable = false)
     private OrderStatus status;
 
+    private String riderPhone;
+
+    private String deliveryNote;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<OrderItem> items = new ArrayList<>();

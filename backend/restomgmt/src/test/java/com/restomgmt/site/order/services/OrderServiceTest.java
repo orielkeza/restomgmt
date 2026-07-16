@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -31,6 +32,7 @@ import com.restomgmt.site.cart.models.CartItem;
 import com.restomgmt.site.cart.repositories.CartRepository;
 import com.restomgmt.site.menu.models.Category;
 import com.restomgmt.site.menu.models.MenuItem;
+import com.restomgmt.site.order.dto.AssignRiderRequest;
 import com.restomgmt.site.order.dto.OrderResponse;
 import com.restomgmt.site.order.dto.UpdateOrderStatusRequest;
 import com.restomgmt.site.order.models.Order;
@@ -358,5 +360,51 @@ class OrderServiceTest {
         List<OrderResponse> result = orderService.getAllOrders();
 
         assertTrue(result.isEmpty());
+    }
+
+    // assignRider
+    @Test
+    void assignRiderShouldSetRiderPhoneWhenOrderIsOutForDelivery() {
+        order.setStatus(OrderStatus.OUTFORDELIVERY);
+
+        AssignRiderRequest request = new AssignRiderRequest();
+        request.setRiderPhone("+250788123456");
+        request.setDeliveryNote("Call on arrival");
+
+        when(orderRepository.findByIdWithItems(1L)).thenReturn(Optional.of(order));
+        when(orderRepository.save(any(Order.class))).thenReturn(order);
+
+        OrderResponse result = orderService.assignRider(1L, request);
+
+        assertNotNull(result);
+        verify(orderRepository).save(argThat(o ->
+            "+250788123456".equals(o.getRiderPhone()) &&
+            "Call on arrival".equals(o.getDeliveryNote())
+        ));
+    }
+
+    @Test
+    void assignRiderShouldThrowWhenOrderIsNotOutForDelivery() {
+        order.setStatus(OrderStatus.READY);
+
+        AssignRiderRequest request = new AssignRiderRequest();
+        request.setRiderPhone("+250788123456");
+
+        when(orderRepository.findByIdWithItems(1L)).thenReturn(Optional.of(order));
+
+        assertThrows(IllegalStateException.class,
+            () -> orderService.assignRider(1L, request));
+        verify(orderRepository, never()).save(any());
+    }
+
+    @Test
+    void assignRiderShouldThrowWhenOrderNotFound() {
+        AssignRiderRequest request = new AssignRiderRequest();
+        request.setRiderPhone("+250788123456");
+
+        when(orderRepository.findByIdWithItems(99L)).thenReturn(Optional.empty());
+
+        assertThrows(NoSuchElementException.class,
+            () -> orderService.assignRider(99L, request));
     }
 }

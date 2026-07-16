@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.restomgmt.site.cart.models.Cart;
 import com.restomgmt.site.cart.models.CartItem;
 import com.restomgmt.site.cart.repositories.CartRepository;
+import com.restomgmt.site.order.dto.AssignRiderRequest;
 import com.restomgmt.site.order.dto.OrderItemResponse;
 import com.restomgmt.site.order.dto.OrderResponse;
 import com.restomgmt.site.order.dto.UpdateOrderStatusRequest;
@@ -206,6 +207,10 @@ public class OrderService {
             .items(itemResponses)
             .total(total)
             .warnings(warnings)
+            .riderPhone(order.getRiderPhone())
+            .deliveryNote(order.getDeliveryNote())
+            .createdAt(order.getCreatedAt())
+            .updatedAt(order.getUpdatedAt())
             .build();
     }
 
@@ -220,6 +225,24 @@ public class OrderService {
             .quantity(item.getQuantity())
             .subtotal(subtotal)
             .build();
+    }
+
+    @Transactional
+    public OrderResponse assignRider(Long orderId, AssignRiderRequest request) {
+        Order order = orderRepository.findByIdWithItems(orderId)
+            .orElseThrow(() -> new NoSuchElementException("Order not found"));
+
+        if (order.getStatus() != OrderStatus.OUTFORDELIVERY) {
+            throw new IllegalStateException(
+                "Rider can only be assigned when order is OUT_FOR_DELIVERY");
+        }
+
+        order.setRiderPhone(request.getRiderPhone());
+        order.setDeliveryNote(request.getDeliveryNote());
+
+        log.info("Rider assigned to order {} - phone: {}", orderId, request.getRiderPhone());
+
+        return toResponse(orderRepository.save(order), List.of());
     }
 
 }

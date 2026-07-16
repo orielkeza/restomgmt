@@ -1,6 +1,7 @@
 package com.restomgmt.site.order.dto;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.restomgmt.site.BaseEntity;
@@ -19,5 +20,9 @@ public class OrderResponse extends BaseEntity{
     private List<OrderItemResponse> items;
     private BigDecimal total;
     private List<String> warnings;
+    private String riderPhone;
+    private String deliveryNote;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
 }

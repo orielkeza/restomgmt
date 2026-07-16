@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.restomgmt.site.order.dto.AssignRiderRequest;
 import com.restomgmt.site.order.dto.OrderResponse;
 import com.restomgmt.site.order.dto.UpdateOrderStatusRequest;
 import com.restomgmt.site.order.services.OrderService;
@@ -87,6 +88,20 @@ public class OrderController {
             @Valid @RequestBody UpdateOrderStatusRequest request) {
         try {
             return ResponseEntity.ok(orderService.advanceOrderStatus(id, request));
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PutMapping("/{id}/rider")
+    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    public ResponseEntity<OrderResponse> assignRider(
+            @PathVariable Long id,
+            @Valid @RequestBody AssignRiderRequest request) {
+        try {
+            return ResponseEntity.ok(orderService.assignRider(id, request));
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         } catch (IllegalStateException e) {

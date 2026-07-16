@@ -5,6 +5,7 @@ public enum OrderStatus {
     CONFIRMED,
     PREPARING,
     READY,
+    OUTFORDELIVERY,
     DELIVERED,
     CANCELLED;
 
@@ -13,7 +14,8 @@ public enum OrderStatus {
             case PENDING -> CONFIRMED;
             case CONFIRMED -> PREPARING;
             case PREPARING -> READY;
-            case READY -> DELIVERED;
+            case READY -> OUTFORDELIVERY;
+            case OUTFORDELIVERY -> DELIVERED;
             default -> throw new IllegalStateException(
                 "Cannot advance status from: " + this);
         };

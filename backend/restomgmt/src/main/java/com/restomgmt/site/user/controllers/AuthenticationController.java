@@ -38,6 +38,10 @@ public class AuthenticationController {
         } catch (DisabledException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body("Email not verified. Please check your inbox.");
+        } catch (Exception e) {
+            log.error("Login error: {}", e.getClass().getName() + ": " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body("Login failed: " + e.getMessage());
         }
     }
 

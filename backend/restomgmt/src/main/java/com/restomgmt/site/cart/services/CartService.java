@@ -136,6 +136,8 @@ public class CartService {
             .username(cart.getUser().getUsername())
             .items(itemResponses)
             .total(total)
+            .createdAt(cart.getCreatedAt())
+            .updatedAt(cart.getUpdatedAt())
             .build();
     }
 

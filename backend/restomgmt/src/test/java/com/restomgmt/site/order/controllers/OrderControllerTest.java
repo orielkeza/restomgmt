@@ -30,6 +30,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import com.restomgmt.site.order.dto.AssignRiderRequest;
 import com.restomgmt.site.order.dto.OrderItemResponse;
 import com.restomgmt.site.order.dto.OrderResponse;
 import com.restomgmt.site.order.dto.UpdateOrderStatusRequest;
@@ -268,6 +269,60 @@ class OrderControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.put("/orders/99/status")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"status\":\"CONFIRMED\"}"))
+            .andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @Test
+    void assignRiderShouldReturn200WhenValid() throws Exception {
+        OrderResponse withRider = OrderResponse.builder()
+            .orderId(1L)
+            .username("testuser")
+            .status(OrderStatus.OUTFORDELIVERY)
+            .items(List.of())
+            .total(BigDecimal.ZERO)
+            .warnings(List.of())
+            .riderPhone("+250788123456")
+            .deliveryNote("Call on arrival")
+            .build();
+
+        when(orderService.assignRider(eq(1L), any(AssignRiderRequest.class)))
+            .thenReturn(withRider);
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/orders/1/rider")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"riderPhone\":\"+250788123456\",\"deliveryNote\":\"Call on arrival\"}"))
+            .andExpect(MockMvcResultMatchers.status().isOk())
+            .andExpect(MockMvcResultMatchers.jsonPath("$.riderPhone").value("+250788123456"))
+            .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("OUTFORDELIVERY"));
+    }
+
+    @Test
+    void assignRiderShouldReturn400WhenOrderNotOutForDelivery() throws Exception {
+        when(orderService.assignRider(eq(1L), any(AssignRiderRequest.class)))
+            .thenThrow(new IllegalStateException("Order not out for delivery"));
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/orders/1/rider")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"riderPhone\":\"+250788123456\"}"))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    @Test
+    void assignRiderShouldReturn400WhenPhoneIsInvalid() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.put("/orders/1/rider")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"riderPhone\":\"invalid\"}"))
+            .andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    @Test
+    void assignRiderShouldReturn404WhenOrderNotFound() throws Exception {
+        when(orderService.assignRider(eq(99L), any(AssignRiderRequest.class)))
+            .thenThrow(new NoSuchElementException("Order not found"));
+
+        mockMvc.perform(MockMvcRequestBuilders.put("/orders/99/rider")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"riderPhone\":\"+250788123456\"}"))
             .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
     
