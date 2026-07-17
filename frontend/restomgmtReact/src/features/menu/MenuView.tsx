@@ -1,12 +1,18 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { type RootState, type AppDispatch } from '../../store/store';
-import { setActiveTab, fetchMenuData } from './menuSlice';
+import { setActiveTab, fetchMenuData, toggleItemAvailability } from './menuSlice';
 import { theme } from '../../theme';
+import { addToCart } from '../cart/cartSlice';
 
 export const MenuView: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
     const { items, categories, activeTab, status, error } = useSelector((state: RootState) => state.menu);
+    const roles = useSelector((state: RootState) => state.auth.roles);
+    const canManageMenu = roles.includes('ROLE_ADMIN') || roles.includes('ROLE_STAFF');
+    const handleAddToCart = (menuItemId: number) => {
+        dispatch(addToCart({ menuItemId, quantity: 1 }));
+    };
 
     useEffect(() => {
         if (status === 'idle') {
@@ -117,6 +123,7 @@ export const MenuView: React.FC = () => {
 
                         <button
                             disabled={!item.available}
+                            onClick={() => handleAddToCart(item.id)}
                             style={{
                                 width: '100%', padding: '10px',
                                 background: item.available ? theme.colors.brand : '#E5E7EB',
@@ -128,8 +135,30 @@ export const MenuView: React.FC = () => {
                         >
                             {item.available ? 'Add to Order' : 'Unavailable'}
                         </button>
+
+                        {canManageMenu && (
+                            <button
+                                onClick={() => dispatch(toggleItemAvailability(item.id))}
+                                style={{
+                                    width: '100%',
+                                    padding: '8px',
+                                    marginTop: '8px',
+                                    background: 'transparent',
+                                    border: `1px solid ${theme.colors.border}`,
+                                    borderRadius: theme.radius.sm,
+                                    cursor: 'pointer',
+                                    fontSize: '12px',
+                                    color: theme.colors.textSecondary,
+                                }}
+                            >
+                                {item.available ? 'Mark Unavailable' : 'Mark Available'}
+                            </button>
+
+                        )}
+
                     </div>
                 ))}
+                
             </div>
         </div>
     );

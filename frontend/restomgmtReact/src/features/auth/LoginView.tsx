@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { loginSuccess } from './authSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginUser } from './authSlice';
+import { type RootState, type AppDispatch } from '../../store/store';
 import { theme } from '../../theme';
 
 interface LoginViewProps {
@@ -8,33 +9,32 @@ interface LoginViewProps {
 }
 
 export const LoginView: React.FC<LoginViewProps> = ({ onSwitchToRegister }) => {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
+    const { loginStatus, loginError } = useSelector((state: RootState) => state.auth);
 
-    // keeps track of what the user types in real-time
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+    const [formError, setFormError] = useState('');
 
-    // handles submission
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault(); // prevent from reloading the entire page
+        e.preventDefault();
 
         if (username.trim() === '' || password.trim() === '') {
-            setError('Please fill in all the fields');
+            setFormError('Please fill in all the fields');
             return;
         }
 
-        setError('');
-
-        // sends the action to redux so that the user is logged in globally
-        dispatch(loginSuccess(username));
+        setFormError('');
+        dispatch(loginUser({ username, password }));
     };
+
+    const displayError = formError || loginError;
 
     return (
         <div style={{
             backgroundColor: theme.colors.bg,
-            minHeight: '100vh', // element must be at least as tall as the visible screen
-            display: 'flex', // makes all child elements flexible
+            minHeight: '100vh',
+            display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
             fontFamily: theme.font,
@@ -54,22 +54,13 @@ export const LoginView: React.FC<LoginViewProps> = ({ onSwitchToRegister }) => {
                     Login
                 </h2>
 
-                <button style={{
-                    width: '100%',
-                    padding: '10px',
-                    backgroundColor: '#f5f5f5',
-                    border: '1px solid #ddd',
-                    borderRadius: theme.radius.sm,
-                    cursor: 'pointer',
-                    marginBottom: '20px',
-                    fontSize: '14px',
-                }}>
-                    Login with Google
-                </button>
+                {displayError && (
+                    <p style={{ color: theme.colors.dangerText, fontSize: '13px', background: theme.colors.dangerBg, padding: '8px 12px', borderRadius: theme.radius.sm }}>
+                        {displayError}
+                    </p>
+                )}
 
-                {error && <p style={{ color: 'red', fontSize: '14px' }}>{error}</p>}
-
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: displayError ? '16px' : 0 }}>
                     <input
                         type="text"
                         placeholder="username"
@@ -84,17 +75,22 @@ export const LoginView: React.FC<LoginViewProps> = ({ onSwitchToRegister }) => {
                         onChange={(e) => setPassword(e.target.value)}
                         style={inputStyle}
                     />
-                    <button type="submit" style={{
-                        backgroundColor: theme.colors.brand,
-                        color: 'white',
-                        border: 'none',
-                        padding: '12px',
-                        borderRadius: theme.radius.sm,
-                        fontWeight: 'bold',
-                        cursor: 'pointer',
-                        marginTop: '10px',
-                    }}>
-                        Log In
+                    <button
+                        type="submit"
+                        disabled={loginStatus === 'loading'}
+                        style={{
+                            backgroundColor: theme.colors.brand,
+                            color: 'white',
+                            border: 'none',
+                            padding: '12px',
+                            borderRadius: theme.radius.sm,
+                            fontWeight: 'bold',
+                            cursor: loginStatus === 'loading' ? 'not-allowed' : 'pointer',
+                            opacity: loginStatus === 'loading' ? 0.7 : 1,
+                            marginTop: '10px',
+                        }}
+                    >
+                        {loginStatus === 'loading' ? 'Logging in…' : 'Log In'}
                     </button>
                 </form>
 
@@ -112,7 +108,6 @@ export const LoginView: React.FC<LoginViewProps> = ({ onSwitchToRegister }) => {
     );
 };
 
-// reusable basic css object for inputs
 const inputStyle: React.CSSProperties = {
     padding: '12px',
     borderRadius: '6px',
