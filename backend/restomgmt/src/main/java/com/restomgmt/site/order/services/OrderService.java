@@ -24,6 +24,7 @@ import com.restomgmt.site.order.models.OrderItem;
 import com.restomgmt.site.order.models.OrderStatus;
 import com.restomgmt.site.order.repositories.OrderDetailsRepository;
 import com.restomgmt.site.order.repositories.OrderRepository;
+import com.restomgmt.site.payment.repositories.PaymentRepository;
 import com.restomgmt.site.user.models.User;
 import com.restomgmt.site.user.repositories.UserRepository;
 
@@ -42,6 +43,8 @@ public class OrderService {
     private final CartRepository cartRepository;
 
     private final UserRepository userRepository;
+
+    private final PaymentRepository paymentRepository;
 
     @Transactional
     public OrderResponse placeOrder(String username) {
@@ -135,11 +138,9 @@ public class OrderService {
         }
 
         if (order.getStatus() != OrderStatus.PENDING) {
-            throw new IllegalStateException(
-                "Only PENDING orders can be cancelled");
+            throw new IllegalStateException("Only PENDING orders can be cancelled");
         }
 
-        // Check 30 minute window
         LocalDateTime cutoff = order.getCreatedAt().plusMinutes(30);
         if (LocalDateTime.now().isAfter(cutoff)) {
             throw new IllegalStateException(
@@ -150,6 +151,15 @@ public class OrderService {
         orderDetailsRepository.findByOrder_Id(orderId).ifPresent(
             details -> details.setStatus(OrderStatus.CANCELLED)
         );
+
+        // Flag refund if payment was successful
+        paymentRepository.findByOrder_Id(orderId).ifPresent(payment -> {
+            if (payment.getStatus() == com.restomgmt.site.payment.models.PaymentStatus.SUCCESSFUL) {
+                payment.setRefundFlagged(true);
+                paymentRepository.save(payment);
+                log.info("Refund flagged for cancelled order {}", orderId);
+            }
+        });
 
         return toResponse(orderRepository.save(order), List.of());
     }
