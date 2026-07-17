@@ -135,7 +135,7 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
             .category(category)
             .build();
         menuItemRepository.save(item);
-    }
+        }
     }
     
 }

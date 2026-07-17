@@ -1,7 +1,8 @@
 package com.restomgmt.site.user.repositories;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Optional;
@@ -59,9 +60,10 @@ class RoleRepositoryTest {
     }
 
     @Test
-    void findByNameShouldReturnNullWhenNameIsIncorrect() {
+    void findByNameShouldReturnEmptyWhenNameIsIncorrect() {
         Optional<Role> role = roleRepository.findByName("ROLE_FALSE");
 
-        assertNull(role);
+        assertFalse(role.isPresent());
+        assertTrue(role.isEmpty());
     }
 }

@@ -46,7 +46,7 @@ public class MenuItem extends BaseEntity{
     private BigDecimal cost;// big decimal is the ideal type for money because it is exact
 
     @Column(nullable = false)
-    private boolean available = true;
+    private boolean available;
 
     @NotNull
     //this is to avoid lazy loading and makes sure category is always needed when displaying a menu item

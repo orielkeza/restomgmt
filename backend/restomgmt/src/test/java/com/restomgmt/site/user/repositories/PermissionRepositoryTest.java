@@ -1,7 +1,8 @@
 package com.restomgmt.site.user.repositories;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Optional;
 
@@ -52,9 +53,10 @@ class PermissionRepositoryTest {
     }
 
     @Test
-    void findByNameShouldReturnNullWhenUsernameIsIncorrect() {
+    void findByNameShouldReturnEmptyWhenUsernameIsIncorrect() {
         Optional<Permission> permission = permissionRepository.findByName("False");
-        
-        assertNull(permission);
+
+        assertFalse(permission.isPresent());
+        assertTrue(permission.isEmpty());
     }
 }

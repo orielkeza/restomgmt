@@ -6,15 +6,24 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.util.ReflectionTestUtils;
 
 class JwtUtilTest {
     
     private JwtUtil jwtUtil;
+
+    private final List<GrantedAuthority> testAuthorities = 
+            Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+    private final String username = "testUsername";
+
     //BeforeEach runs before each test method
     //no spring context neeed here to inject JwtUtil test vals for the @Value fields
 
@@ -27,9 +36,8 @@ class JwtUtilTest {
 
     @Test
     void generateTokenShouldReturnNonNullToken() {
-        String username = "testUsername";
-
-        String token = jwtUtil.generateToken(username);
+        // Pass the authorities to the updated method
+        String token = jwtUtil.generateToken(username, testAuthorities);
 
         assertNotNull(token);
         assertFalse(token.isEmpty());
@@ -37,9 +45,7 @@ class JwtUtilTest {
 
     @Test
     void extractUsernameShouldReturnNonNullCorrectUsername() {
-        String username = "testUsername";
-
-        String token = jwtUtil.generateToken(username);
+        String token = jwtUtil.generateToken(username, testAuthorities);
 
         assertNotNull(jwtUtil.extractUsername(token));
         assertEquals(username, jwtUtil.extractUsername(token));
@@ -47,12 +53,9 @@ class JwtUtilTest {
 
     @Test
     void extractExpirationShouldReturnFutureExpirationDate() {
-        String username = "testUsername";
-
-        String token = jwtUtil.generateToken(username);
+        String token = jwtUtil.generateToken(username, testAuthorities);
 
         Date futureDateTest = new Date(System.currentTimeMillis());
-
         Date testDate = jwtUtil.extractExpiration(token);
 
         assertNotEquals(testDate, futureDateTest);
@@ -60,10 +63,8 @@ class JwtUtilTest {
     }
 
     @Test
-    void validateTokenShouldReturnCorrectBoolean (){
-        String username = "testUsername";
-
-        String token = jwtUtil.generateToken(username);
+    void validateTokenShouldReturnCorrectBoolean() {
+        String token = jwtUtil.generateToken(username, testAuthorities);
 
         Boolean isValid = jwtUtil.validateToken(token, username);
 
@@ -71,15 +72,28 @@ class JwtUtilTest {
     }
 
     @Test
-    void validateTokenShouldReturnCorrectBooleanWhenUsernamesDoNotMatch (){
-        String username = "testUsername";
-
-        String token = jwtUtil.generateToken(username);
-
+    void validateTokenShouldReturnCorrectBooleanWhenUsernamesDoNotMatch() {
+        String token = jwtUtil.generateToken(username, testAuthorities);
         String wrongUsername = "wrongUsername";
 
         Boolean isValid = jwtUtil.validateToken(token, wrongUsername);
 
         assertFalse(isValid);
+    }
+
+    @Test
+    void extractRolesShouldReturnEmbeddedAuthorities() {
+        List<GrantedAuthority> customAuthorities = List.of(
+            new SimpleGrantedAuthority("ROLE_USER"),
+            new SimpleGrantedAuthority("ROLE_ADMIN")
+        );
+        
+        String token = jwtUtil.generateToken(username, customAuthorities);
+        
+        List<GrantedAuthority> extractedAuthorities = jwtUtil.extractRoles(token);
+        
+        assertNotNull(extractedAuthorities);
+        assertEquals(2, extractedAuthorities.size());
+        assertTrue(extractedAuthorities.stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")));
     }
 }
