@@ -20,7 +20,6 @@ export const DashboardView: React.FC = () => {
                     fontWeight: 'bold',
                     margin: '0 0 12px 0'}}>
                     <span>Reserved Under: {item.customerName}</span><br/>
-                    <span>Reservation Date: {item.date instanceof Date ? item.date.toLocaleDateString() : item.date}</span><br/>
                     <span>Meal: {item.meal}</span><br/>
                     <span>Table: {item.tableNumber}</span>
                 </p>

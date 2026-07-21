@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
 import { authApi, type RegisterPayload } from '../../api/authApi';
 import { decodeJwt } from '../../api/jwt';
 
@@ -7,6 +7,7 @@ interface AuthState {
     username: string | null;
     roles: string[];
     isLoggedIn: boolean;
+    viewMode: 'staff' | 'customer';
     loginStatus: 'idle' | 'loading' | 'failed';
     loginError: string | null;
     registerStatus: 'idle' | 'loading' | 'succeeded' | 'failed';
@@ -16,11 +17,13 @@ interface AuthState {
 const storedToken = localStorage.getItem('auth_token');
 const decodedOnLoad = storedToken ? decodeJwt(storedToken) : null;
 
+const initialRoles = decodedOnLoad?.roles ?? [];
 const initialState: AuthState = {
     token: storedToken,
     username: decodedOnLoad?.sub ?? null,
     roles: decodedOnLoad?.roles ?? [],
     isLoggedIn: !!storedToken,
+    viewMode: (initialRoles.includes('ADMIN') || initialRoles.includes('STAFF')) ? 'staff' : 'customer',
     loginStatus: 'idle',
     loginError: null,
     registerStatus: 'idle',
@@ -52,11 +55,15 @@ export const authSlice = createSlice({
             state.username = null;
             state.roles = [];
             state.isLoggedIn = false;
+            state.viewMode = 'customer';
             localStorage.removeItem('auth_token');
         },
         clearRegisterStatus: (state) => {
             state.registerStatus = 'idle';
             state.registerError = null;
+        },
+        setViewMode: (state, action: PayloadAction<'staff' | 'customer'>) => {
+            state.viewMode = action.payload;
         },
     },
     extraReducers: (builder) => {
@@ -71,6 +78,7 @@ export const authSlice = createSlice({
                 state.username = decoded?.sub ?? null;
                 state.roles = decoded?.roles ?? [];
                 state.isLoggedIn = true;
+                state.viewMode = (state.roles.includes('ADMIN') || state.roles.includes('STAFF')) ? 'staff' : 'customer';
                 state.loginStatus = 'idle';
                 localStorage.setItem('auth_token', action.payload);
             })
@@ -92,5 +100,5 @@ export const authSlice = createSlice({
     },
 });
 
-export const { logout, clearRegisterStatus } = authSlice.actions;
+export const { logout, clearRegisterStatus, setViewMode } = authSlice.actions;
 export default authSlice.reducer;

@@ -3,12 +3,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { loginUser } from './authSlice';
 import { type RootState, type AppDispatch } from '../../store/store';
 import { theme } from '../../theme';
+import { LoadingButton } from '../../components/LoadingButton';
 
 interface LoginViewProps {
     onSwitchToRegister: () => void;
+    onForgotPassword: () => void;
 }
 
-export const LoginView: React.FC<LoginViewProps> = ({ onSwitchToRegister }) => {
+export const LoginView: React.FC<LoginViewProps> = ({ onSwitchToRegister, onForgotPassword }) => {
     const dispatch = useDispatch<AppDispatch>();
     const { loginStatus, loginError } = useSelector((state: RootState) => state.auth);
 
@@ -68,30 +70,40 @@ export const LoginView: React.FC<LoginViewProps> = ({ onSwitchToRegister }) => {
                         onChange={(e) => setUsername(e.target.value)}
                         style={inputStyle}
                     />
-                    <input
-                        type="password"
-                        placeholder="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        style={inputStyle}
-                    />
-                    <button
+                    
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
+                        <input
+                            type="password"
+                            placeholder="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            style={{ ...inputStyle, width: '100%', boxSizing: 'border-box' }}
+                        />
+                        <button
+                            type="button"
+                            onClick={onForgotPassword}
+                            style={{
+                                background: 'none',
+                                border: 'none',
+                                padding: 0,
+                                fontSize: '12px',
+                                color: theme.colors.brand,
+                                cursor: 'pointer',
+                                fontWeight: '500',
+                            }}
+                        >
+                            Forgot password?
+                        </button>
+                    </div>
+
+                    <LoadingButton
                         type="submit"
-                        disabled={loginStatus === 'loading'}
-                        style={{
-                            backgroundColor: theme.colors.brand,
-                            color: 'white',
-                            border: 'none',
-                            padding: '12px',
-                            borderRadius: theme.radius.sm,
-                            fontWeight: 'bold',
-                            cursor: loginStatus === 'loading' ? 'not-allowed' : 'pointer',
-                            opacity: loginStatus === 'loading' ? 0.7 : 1,
-                            marginTop: '10px',
-                        }}
+                        loading={loginStatus === 'loading'}
+                        loadingText="Logging in…"
+                        style={{ backgroundColor: theme.colors.brand, color: 'white', border: 'none', padding: '12px', borderRadius: theme.radius.sm, fontWeight: 'bold', marginTop: '10px' }}
                     >
-                        {loginStatus === 'loading' ? 'Logging in…' : 'Log In'}
-                    </button>
+                        Log In
+                    </LoadingButton>
                 </form>
 
                 <p style={{ marginTop: '20px', fontSize: '14px', color: '#555' }}>

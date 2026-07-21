@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
-import { menuApi, type MenuItemResponse, type CategoryResponse } from '../../api/menuApi';
+import { menuApi, type MenuItemResponse, type CategoryResponse, type MenuItemRequest } from '../../api/menuApi';
 import type { RootState } from '../../store/store';
 
 export type MenuCategoryTab = string; // categoryName, or 'all'
@@ -10,6 +10,7 @@ interface MenuState {
     categories: CategoryResponse[];
     activeTab: MenuCategoryTab;
     status: 'idle' | 'loading' | 'succeeded' | 'failed';
+    pendingItemIds: number[];
     error: string | null;
 }
 
@@ -18,6 +19,7 @@ const initialState: MenuState = {
     categories: [],
     activeTab: 'all',
     status: 'idle',
+    pendingItemIds: [],
     error: null,
 };
 
@@ -30,22 +32,48 @@ export const fetchMenuData = createAsyncThunk('menu/fetchMenuData', async () => 
     return { items, categories };
 });
 
+export const createMenuItem = createAsyncThunk<MenuItemResponse, MenuItemRequest, { state: RootState }>(
+    'menu/createMenuItem',
+    async (payload, { getState, rejectWithValue }) => {
+        try { return await menuApi.createItem(getState().auth.token, payload); }
+        catch (err) { return rejectWithValue(err instanceof Error ? err.message : 'Failed to create item'); }
+    }
+);
+
+export const updateMenuItem = createAsyncThunk<MenuItemResponse, { id: number; payload: MenuItemRequest }, { state: RootState }>(
+    'menu/updateMenuItem',
+    async ({ id, payload }, { getState, rejectWithValue }) => {
+        try { return await menuApi.updateItem(getState().auth.token, id, payload); }
+        catch (err) { return rejectWithValue(err instanceof Error ? err.message : 'Failed to update item'); }
+    }
+);
+
+export const deleteMenuItem = createAsyncThunk<number, number, { state: RootState }>(
+    'menu/deleteMenuItem',
+    async (id, { getState, rejectWithValue }) => {
+        try { await menuApi.deleteItem(getState().auth.token, id); return id; }
+        catch (err) { return rejectWithValue(err instanceof Error ? err.message : 'Failed to delete item'); }
+    }
+);
+
 // Admin/staff-only: fetch ALL items including unavailable ones
-export const fetchAllItemsAdmin = createAsyncThunk<
-    MenuItemResponse[],
-    void,
-    { state: RootState }
->('menu/fetchAllItemsAdmin', async (_, { getState, rejectWithValue }) => {
-    const token = getState().auth.token;
-    if (!token) {
-        return rejectWithValue('Not authenticated');
-    }
+export const fetchAllItemsAdmin = createAsyncThunk(
+  'menu/fetchAllItemsAdmin', 
+  async (_, { getState, rejectWithValue }) => {
+    const stateCast = getState() as RootState;
+    const token = stateCast.auth.token;
+    if (!token) return rejectWithValue('Not authenticated');
     try {
-        return await menuApi.getAllItems(token);
+      const [items, categories] = await Promise.all([
+        menuApi.getAllItems(token),
+        menuApi.getCategories(),
+      ]);
+      return { items, categories };
     } catch (err) {
-        return rejectWithValue(err instanceof Error ? err.message : 'Failed to load items');
+      return rejectWithValue(err instanceof Error ? err.message : 'Failed to load items');
     }
-});
+  }
+);
 
 // Toggle a single item's availability, then patch it into state directly
 // (avoids refetching the whole list just to reflect one flipped boolean)
@@ -64,6 +92,18 @@ export const toggleItemAvailability = createAsyncThunk<
         return rejectWithValue(err instanceof Error ? err.message : 'Failed to update item');
     }
 });
+
+function addPending(state: MenuState, id: number) {
+    if (!state.pendingItemIds.includes(id)) {
+        state.pendingItemIds.push(id);
+    }
+}
+
+function removePending(state: MenuState, id: number) {
+    state.pendingItemIds = state.pendingItemIds.filter(
+        (pendingId) => pendingId !== id
+    );
+}
 
 export const menuSlice = createSlice({
     name: 'menu',
@@ -86,19 +126,57 @@ export const menuSlice = createSlice({
                 state.error = action.error.message ?? 'Failed to load menu';
             })
             .addCase(fetchAllItemsAdmin.fulfilled, (state, action) => {
-                state.items = action.payload;
                 state.status = 'succeeded';
+                state.items = action.payload.items;          // <-- Extract items
+                state.categories = action.payload.categories; // <-- Extract categories
             })
             .addCase(fetchAllItemsAdmin.rejected, (state, action) => {
                 state.error = (action.payload as string) ?? 'Failed to load items';
             })
+            .addCase(toggleItemAvailability.pending, (state, action) => {
+                addPending(state, action.meta.arg);
+            })
             .addCase(toggleItemAvailability.fulfilled, (state, action) => {
-                // swap just the one item that changed, in place
+                removePending(state, action.payload.id);
+
                 const idx = state.items.findIndex((i) => i.id === action.payload.id);
-                if (idx !== -1) state.items[idx] = action.payload;
+                if (idx !== -1) {
+                    state.items[idx] = action.payload;
+                }
             })
             .addCase(toggleItemAvailability.rejected, (state, action) => {
+                removePending(state, action.meta.arg);
                 state.error = (action.payload as string) ?? 'Failed to update availability';
+            })
+            .addCase(createMenuItem.fulfilled, (state, action) => { state.items.push(action.payload); })
+            .addCase(updateMenuItem.pending, (state, action) => {
+                addPending(state, action.meta.arg.id);
+            })
+            .addCase(updateMenuItem.fulfilled, (state, action) => {
+                removePending(state, action.payload.id);
+
+                const idx = state.items.findIndex((i) => i.id === action.payload.id);
+                if (idx !== -1) {
+                    state.items[idx] = action.payload;
+                }
+            })
+            .addCase(updateMenuItem.rejected, (state, action) => {
+                removePending(state, action.meta.arg.id);
+                state.error = (action.payload as string) ?? 'Failed to update item';
+            })
+            .addCase(deleteMenuItem.pending, (state, action) => {
+                addPending(state, action.meta.arg);
+            })
+            .addCase(deleteMenuItem.fulfilled, (state, action) => {
+                removePending(state, action.payload);
+
+                state.items = state.items.filter(
+                    (i) => i.id !== action.payload
+                );
+            })
+            .addCase(deleteMenuItem.rejected, (state, action) => {
+                removePending(state, action.meta.arg);
+                state.error = (action.payload as string) ?? 'Failed to delete item';
             });
     },
 });

@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { registerUser, clearRegisterStatus } from './authSlice';
 import { type RootState, type AppDispatch } from '../../store/store';
 import { theme } from '../../theme';
+import { LoadingButton } from '../../components/LoadingButton';
 
 interface RegistrationViewProps {
     onSwitchToLogin: () => void;
@@ -92,18 +93,14 @@ export const RegistrationView: React.FC<RegistrationViewProps> = ({ onSwitchToLo
                     <input type="text" placeholder="email" value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} />
                     <input type="text" placeholder="username" value={username} onChange={(e) => setUsername(e.target.value)} style={inputStyle} />
                     <input type="password" placeholder="password" value={password} onChange={(e) => setPassword(e.target.value)} style={inputStyle} />
-                    <button
+                    <LoadingButton
                         type="submit"
-                        disabled={registerStatus === 'loading'}
-                        style={{
-                            backgroundColor: theme.colors.brand, color: 'white', border: 'none',
-                            padding: '12px', borderRadius: theme.radius.sm, fontWeight: 'bold',
-                            cursor: registerStatus === 'loading' ? 'not-allowed' : 'pointer',
-                            opacity: registerStatus === 'loading' ? 0.7 : 1, marginTop: '10px',
-                        }}
+                        loading={registerStatus === 'loading'}
+                        loadingText="Creating account..."
+                        style={{ backgroundColor: theme.colors.brand, color: 'white', border: 'none', padding: '12px', borderRadius: theme.radius.sm, fontWeight: 'bold', marginTop: '10px' }}
                     >
-                        {registerStatus === 'loading' ? 'Creating account…' : 'Create account'}
-                    </button>
+                        Sign Up
+                    </LoadingButton>
                 </form>
 
                 <p style={{ marginTop: '20px', fontSize: '14px', color: '#555' }}>

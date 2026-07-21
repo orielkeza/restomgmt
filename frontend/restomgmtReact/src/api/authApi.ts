@@ -57,4 +57,33 @@ export const authApi = {
     if (!res.ok) throw new Error(body || 'Could not resend verification email');
     return body;
   },
+
+  forgotPassword: async (email: string): Promise<string> => {
+      const res = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const body = await readBody(res);
+      if (!res.ok) throw new Error(body || 'Request failed');
+      return body;
+  },
+
+  resetPassword: async (token: string, newPassword: string): Promise<string> => {
+      const res = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, newPassword }),
+      });
+      const body = await readBody(res);
+      if (!res.ok) throw new Error(body || 'Reset failed');
+      return body;
+  },
+
+  verifyEmail: async (token: string): Promise<string> => {
+      const res = await fetch(`${API_BASE_URL}/auth/verify-email?token=${encodeURIComponent(token)}`);
+      const body = await readBody(res);
+      if (!res.ok) throw new Error(body || 'Verification failed');
+      return body;
+  },
 };

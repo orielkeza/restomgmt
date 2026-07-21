@@ -9,6 +9,7 @@ interface OrderState {
     mutationStatus: 'idle' | 'loading' | 'failed';
     error: string | null;
     lastPlacedOrder: OrderResponse | null;
+    pendingOrderIds: number[];
 }
 
 const initialState: OrderState = {
@@ -18,6 +19,7 @@ const initialState: OrderState = {
     mutationStatus: 'idle',
     error: null,
     lastPlacedOrder: null,
+    pendingOrderIds: [],
 };
 
 type ThunkConfig = { state: RootState };
@@ -78,6 +80,25 @@ export const advanceOrderStatus = createAsyncThunk<
     }
 });
 
+export const assignRider = createAsyncThunk <
+    OrderResponse,
+    { orderId: number; riderPhone: string; deliveryNote?: string },
+    ThunkConfig
+>('orders/assignRider', async ({ orderId, riderPhone, deliveryNote }, { getState, rejectWithValue }) => {
+    try {
+        return await orderApi.assignRider(getState().auth.token, orderId, riderPhone, deliveryNote);
+    } catch (err) {
+        return rejectWithValue(err instanceof Error ? err.message : 'Failed to assign rider');
+    }
+});
+
+function addPending(state: OrderState, id: number) {
+    if (!state.pendingOrderIds.includes(id)) state.pendingOrderIds.push(id);
+}
+function removePending(state: OrderState, id: number) {
+    state.pendingOrderIds = state.pendingOrderIds.filter((i) => i !== id);
+}
+
 export const orderSlice = createSlice({
     name: 'orders',
     initialState,
@@ -125,13 +146,35 @@ export const orderSlice = createSlice({
                 state.status = 'failed';
                 state.error = (action.payload as string) ?? 'Failed to load orders';
             })
+            .addCase(cancelOrder.pending, (state, action) => addPending(state, action.meta.arg))
             .addCase(cancelOrder.fulfilled, (state, action) => {
+                removePending(state, action.payload.orderId);
                 const idx = state.myOrders.findIndex((o) => o.orderId === action.payload.orderId);
                 if (idx !== -1) state.myOrders[idx] = action.payload;
             })
+            .addCase(cancelOrder.rejected, (state, action) => {
+                removePending(state, action.meta.arg);
+                state.error = (action.payload as string) ?? 'Failed to cancel order';
+            })
+            .addCase(advanceOrderStatus.pending, (state, action) => addPending(state, action.meta.arg.orderId))
             .addCase(advanceOrderStatus.fulfilled, (state, action) => {
+                removePending(state, action.payload.orderId);
                 const idx = state.allOrders.findIndex((o) => o.orderId === action.payload.orderId);
                 if (idx !== -1) state.allOrders[idx] = action.payload;
+            })
+            .addCase(advanceOrderStatus.rejected, (state, action) => {
+                removePending(state, action.meta.arg.orderId);
+                state.error = (action.payload as string) ?? 'Failed to update status';
+            })
+            .addCase(assignRider.pending, (state, action) => addPending(state, action.meta.arg.orderId))
+            .addCase(assignRider.fulfilled, (state, action) => {
+                removePending(state, action.payload.orderId);
+                const idx = state.allOrders.findIndex((o) => o.orderId === action.payload.orderId);
+                if (idx !== -1) state.allOrders[idx] = action.payload;
+            })
+            .addCase(assignRider.rejected, (state, action) => {
+                removePending(state, action.meta.arg.orderId);
+                state.error = (action.payload as string) ?? 'Failed to assign rider';
             });
     },
 });

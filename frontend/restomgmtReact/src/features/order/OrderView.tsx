@@ -1,9 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { type RootState, type AppDispatch } from '../../store/store';
 import { fetchMyOrders, fetchAllOrders, cancelOrder, advanceOrderStatus } from './orderSlice';
 import { type OrderStatus, type OrderResponse } from '../../api/orderApi';
 import { theme } from '../../theme';
+import { RiderAssignmentForm } from './RiderAissgnmentForm';
+import { flagRefund } from '../payments/paymentSlice';
+import { PageLoader } from '../../components/PageLoader';
+import { LoadingButton } from '../../components/LoadingButton';
 
 const STATUS_ORDER: OrderStatus[] = ['PENDING', 'CONFIRMED', 'PREPARING', 'READY', 'OUTFORDELIVERY', 'DELIVERED'];
 
@@ -35,7 +39,10 @@ export const OrderView: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
     const { myOrders, allOrders, status, error } = useSelector((state: RootState) => state.orders);
     const roles = useSelector((state: RootState) => state.auth.roles);
-    const isStaff = roles.includes('ADMIN') || roles.includes('STAFF');
+    const viewMode = useSelector((state: RootState) => state.auth.viewMode);
+    const isStaff = viewMode === 'staff';
+    const [assigningRiderFor, setAssigningRiderFor] = useState<number | null>(null);
+    const pendingOrderIds = useSelector((state: RootState) => state.orders.pendingOrderIds);
 
     useEffect(() => {
         if (status === 'idle') {
@@ -52,7 +59,7 @@ export const OrderView: React.FC = () => {
     };
 
     if (status === 'loading' || status === 'idle') {
-        return <div style={{ padding: '40px', textAlign: 'center', color: theme.colors.textSecondary }}>Loading orders…</div>;
+        return <PageLoader label="Loading orders…" />;
     }
 
     if (status === 'failed') {
@@ -94,34 +101,43 @@ export const OrderView: React.FC = () => {
                             <tbody>
                                 {orders.map((order) => (
                                     <tr key={order.orderId} style={{ borderBottom: `1px solid ${theme.colors.border}`, fontSize: '14px', color: theme.colors.textPrimary }}>
-                                        <td style={{ padding: '16px', fontWeight: 700 }}>#{order.orderId}</td>
-                                        <td style={{ padding: '16px', color: theme.colors.textSecondary }}>
-                                            {new Date(order.createdAt).toLocaleString()}
-                                        </td>
-                                        {isStaff && <td style={{ padding: '16px', fontWeight: 500 }}>{order.username}</td>}
-                                        <td style={{ padding: '16px', color: theme.colors.textSecondary }}>
-                                            {order.items.map((i) => `${i.itemName} x${i.quantity}`).join(', ')}
-                                        </td>
-                                        <td style={{ padding: '16px', fontWeight: 700 }}>{order.total.toLocaleString()} RWF</td>
                                         <td style={{ padding: '16px' }}>
-                                            <span style={getStatusStyle(order.status)}>{statusLabel(order.status)}</span>
-                                        </td>
-                                        <td style={{ padding: '16px' }}>
-                                            {isStaff && nextStatus(order.status) && (
-                                                <button
+                                            {isStaff && order.status === 'OUTFORDELIVERY' && !order.riderPhone && (
+                                                assigningRiderFor === order.orderId ? (
+                                                    <RiderAssignmentForm orderId={order.orderId} onDone={() => setAssigningRiderFor(null)} />
+                                                ) : (
+                                                    <button onClick={() => setAssigningRiderFor(order.orderId)} style={actionBtnStyle}>
+                                                        Assign Rider
+                                                    </button>
+                                                )
+                                            )}
+                                            {isStaff && order.status === 'OUTFORDELIVERY' && order.riderPhone && (
+                                                <span style={{ fontSize: '12px', color: theme.colors.textSecondary }}>Rider: {order.riderPhone}</span>
+                                            )}
+                                            {isStaff && order.status !== 'OUTFORDELIVERY' && nextStatus(order.status) && (
+                                                // staff "Mark X" button:
+                                                <LoadingButton
+                                                    loading={pendingOrderIds.includes(order.orderId)}
                                                     onClick={() => dispatch(advanceOrderStatus({ orderId: order.orderId, status: nextStatus(order.status)! }))}
                                                     style={actionBtnStyle}
                                                 >
                                                     Mark {statusLabel(nextStatus(order.status)!)}
+                                                </LoadingButton>
+                                            )}
+                                            {isStaff && order.status === 'CANCELLED' && (
+                                                <button onClick={() => dispatch(flagRefund(order.orderId))} style={{ ...actionBtnStyle, color: theme.colors.dangerText }}>
+                                                    Flag Refund
                                                 </button>
                                             )}
                                             {!isStaff && canCancel(order) && (
-                                                <button
+                                                // customer "Cancel" button:
+                                                <LoadingButton
+                                                    loading={pendingOrderIds.includes(order.orderId)}
                                                     onClick={() => dispatch(cancelOrder(order.orderId))}
                                                     style={{ ...actionBtnStyle, color: theme.colors.dangerText }}
                                                 >
                                                     Cancel
-                                                </button>
+                                                </LoadingButton>
                                             )}
                                         </td>
                                     </tr>

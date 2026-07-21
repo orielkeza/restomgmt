@@ -1,35 +1,37 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { type RootState, type AppDispatch } from '../../store/store';
-import { setActiveTab, fetchMenuData, toggleItemAvailability } from './menuSlice';
-import { theme } from '../../theme';
+import { setActiveTab, fetchMenuData, fetchAllItemsAdmin, toggleItemAvailability, deleteMenuItem } from './menuSlice';
 import { addToCart } from '../cart/cartSlice';
+import { type MenuItemResponse } from '../../api/menuApi';
+import { MenuItemFormModal } from './MenuItemFormModal';
+import { theme } from '../../theme';
+import { PageLoader } from '../../components/PageLoader';
+import { LoadingButton } from '../../components/LoadingButton';
 
 export const MenuView: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
     const { items, categories, activeTab, status, error } = useSelector((state: RootState) => state.menu);
     const roles = useSelector((state: RootState) => state.auth.roles);
-    const canManageMenu = roles.includes('ROLE_ADMIN') || roles.includes('ROLE_STAFF');
-    const handleAddToCart = (menuItemId: number) => {
-        dispatch(addToCart({ menuItemId, quantity: 1 }));
-    };
+    const viewMode = useSelector((state: RootState) => state.auth.viewMode);
+
+    const canManageMenu = viewMode === 'staff' && (roles.includes('ROLE_ADMIN') || roles.includes('STAFF'));
+    const [modalItem, setModalItem] = useState<MenuItemResponse | 'new' | null>(null);
+
+    const pendingItemIds = useSelector((state: RootState) => state.menu.pendingItemIds);
 
     useEffect(() => {
         if (status === 'idle') {
-            dispatch(fetchMenuData());
+            dispatch(canManageMenu ? fetchAllItemsAdmin() : fetchMenuData());
         }
-    }, [status, dispatch]);
+    }, [status, canManageMenu, dispatch]);
 
     const filteredItems = activeTab === 'all'
         ? items
         : items.filter((item) => item.categoryName === activeTab);
 
     if (status === 'loading' || status === 'idle') {
-        return (
-            <div style={{ padding: '40px', textAlign: 'center', color: theme.colors.textSecondary }}>
-                Loading menu…
-            </div>
-        );
+        return <PageLoader label="Loading menu…" />;
     }
 
     if (status === 'failed') {
@@ -38,7 +40,7 @@ export const MenuView: React.FC = () => {
                 Couldn't load the menu: {error}
                 <div style={{ marginTop: '12px' }}>
                     <button
-                        onClick={() => dispatch(fetchMenuData())}
+                        onClick={() => dispatch(canManageMenu ? fetchAllItemsAdmin() : fetchMenuData())}
                         style={{
                             padding: '8px 16px', borderRadius: theme.radius.sm, border: 'none',
                             background: theme.colors.brand, color: 'white', cursor: 'pointer', fontWeight: 'bold',
@@ -53,19 +55,25 @@ export const MenuView: React.FC = () => {
 
     return (
         <div style={{ fontFamily: theme.font }}>
-            <div style={{ display: 'flex', gap: '10px', marginBottom: '28px', flexWrap: 'wrap' }}>
+            {canManageMenu && (
                 <button
-                    onClick={() => dispatch(setActiveTab('all'))}
-                    style={tabStyle(activeTab === 'all')}
+                    onClick={() => setModalItem('new')}
+                    style={{
+                        marginBottom: '16px', padding: '10px 18px', borderRadius: theme.radius.sm,
+                        border: 'none', background: theme.colors.brand, color: 'white',
+                        fontWeight: 'bold', cursor: 'pointer',
+                    }}
                 >
+                    + Add Menu Item
+                </button>
+            )}
+
+            <div style={{ display: 'flex', gap: '10px', marginBottom: '28px', flexWrap: 'wrap' }}>
+                <button onClick={() => dispatch(setActiveTab('all'))} style={tabStyle(activeTab === 'all')}>
                     All Items
                 </button>
                 {categories.map((cat) => (
-                    <button
-                        key={cat.id}
-                        onClick={() => dispatch(setActiveTab(cat.name))}
-                        style={tabStyle(activeTab === cat.name)}
-                    >
+                    <button key={cat.id} onClick={() => dispatch(setActiveTab(cat.name))} style={tabStyle(activeTab === cat.name)}>
                         {cat.name}
                     </button>
                 ))}
@@ -121,45 +129,48 @@ export const MenuView: React.FC = () => {
                             {item.cost.toLocaleString()} RWF
                         </p>
 
-                        <button
-                            disabled={!item.available}
-                            onClick={() => handleAddToCart(item.id)}
-                            style={{
-                                width: '100%', padding: '10px',
-                                background: item.available ? theme.colors.brand : '#E5E7EB',
-                                color: item.available ? 'white' : theme.colors.textMuted,
-                                border: 'none', borderRadius: theme.radius.sm,
-                                cursor: item.available ? 'pointer' : 'not-allowed',
-                                fontWeight: 'bold', fontSize: '13px',
-                            }}
-                        >
-                            {item.available ? 'Add to Order' : 'Unavailable'}
-                        </button>
-
-                        {canManageMenu && (
-                            <button
-                                onClick={() => dispatch(toggleItemAvailability(item.id))}
-                                style={{
-                                    width: '100%',
-                                    padding: '8px',
-                                    marginTop: '8px',
-                                    background: 'transparent',
-                                    border: `1px solid ${theme.colors.border}`,
-                                    borderRadius: theme.radius.sm,
-                                    cursor: 'pointer',
-                                    fontSize: '12px',
-                                    color: theme.colors.textSecondary,
-                                }}
+                        {!canManageMenu && (
+                            // Add to Order:
+                            <LoadingButton
+                                loading={pendingItemIds.includes(item.id)}
+                                disabled={!item.available}
+                                onClick={() => dispatch(addToCart({ menuItemId: item.id, quantity: 1 }))}
+                                style={{ width: '100%', padding: '10px', background: item.available ? theme.colors.brand : '#E5E7EB', color: item.available ? 'white' : theme.colors.textMuted, border: 'none', borderRadius: theme.radius.sm, fontWeight: 'bold', fontSize: '13px' }}
                             >
-                                {item.available ? 'Mark Unavailable' : 'Mark Available'}
-                            </button>
-
+                                {item.available ? 'Add to Order' : 'Unavailable'}
+                            </LoadingButton>
                         )}
 
+                        {canManageMenu && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <LoadingButton
+                                    loading={pendingItemIds.includes(item.id)}
+                                    onClick={() => dispatch(toggleItemAvailability(item.id))}
+                                    style={{ width: '100%', padding: '8px', border: `1px solid ${theme.colors.border}`, background: 'white', borderRadius: theme.radius.sm, fontSize: '12px', color: theme.colors.textSecondary }}
+                                >
+                                    {item.available ? 'Mark Unavailable' : 'Mark Available'}
+                                </LoadingButton>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <button onClick={() => setModalItem(item)} style={smallBtnStyle}>Edit</button>
+                                    <button
+                                        onClick={() => { if (window.confirm(`Delete ${item.name}?`)) dispatch(deleteMenuItem(item.id)); }}
+                                        style={{ ...smallBtnStyle, color: theme.colors.dangerText }}
+                                    >
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 ))}
-                
             </div>
+
+            {modalItem && (
+                <MenuItemFormModal
+                    editingItem={modalItem === 'new' ? null : modalItem}
+                    onClose={() => setModalItem(null)}
+                />
+            )}
         </div>
     );
 };
@@ -176,3 +187,9 @@ function tabStyle(isActive: boolean): React.CSSProperties {
         color: isActive ? 'white' : theme.colors.textSecondary,
     };
 }
+
+const smallBtnStyle: React.CSSProperties = {
+    flex: 1, padding: '6px', fontSize: '11px', fontWeight: 600,
+    border: `1px solid ${theme.colors.border}`, background: 'white',
+    borderRadius: theme.radius.sm, cursor: 'pointer', color: theme.colors.textSecondary,
+};
