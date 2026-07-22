@@ -56,7 +56,7 @@ public class PaymentController {
     }
 
     @PostMapping("/orders/{orderId}/refund")
-    @PreAuthorize("hasAnyRole('ADMIN', 'STAFF')")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_STAFF')")
     public ResponseEntity<PaymentResponse> flagRefund(@PathVariable Long orderId) {
         try {
             return ResponseEntity.ok(paymentService.flagRefund(orderId));
