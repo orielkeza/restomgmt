@@ -27,14 +27,14 @@ public class UserController {
 
     //fetch all students with endpoint
     @GetMapping("")
-    @PreAuthorize("isAuthenticated")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         log.info("GET /users/ - fetching all users");
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
     @GetMapping("/{id}/info")
-    @PreAuthorize("isAuthenticated")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
         log.info("GET /users/{} - fetching user by id", id);
         return userService.findUserById(id)

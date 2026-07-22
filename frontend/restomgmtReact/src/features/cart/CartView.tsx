@@ -84,7 +84,6 @@ export const CartView: React.FC = () => {
                         <button onClick={() => setStep('cart')} style={{ flex: 1, padding: '12px', borderRadius: theme.radius.sm, border: `1px solid ${theme.colors.border}`, background: 'white', cursor: 'pointer' }}>
                             Back
                         </button>
-                        // checkout "Request Payment" button — already tracked via orderMutationStatus, swap to LoadingButton:
                         <LoadingButton
                             onClick={confirmPhoneAndPay}
                             loading={orderMutationStatus === 'loading'}
