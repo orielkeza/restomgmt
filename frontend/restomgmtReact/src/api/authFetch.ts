@@ -44,6 +44,11 @@ export async function authFetch<T>(
 
   if (!res.ok) {
     const message = typeof body === 'string' ? body : (body as { message?: string })?.message;
+    if (res.status === 401 || res.status === 403) {
+      // Session likely expired or invalid — force back to login rather than
+      // leaving the UI in a broken, silently-failing state.
+      window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+    }
     throw new ApiError(message ?? `Request failed (${res.status})`, res.status);
   }
 
