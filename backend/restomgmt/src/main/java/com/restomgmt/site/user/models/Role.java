@@ -9,9 +9,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-//import java.util.Date;
-//import org.hibernate.annotations.UpdateTimestamp;
-//import org.hibernate.annotations.CreationTimestamp;
 import java.util.Collection;
 
 @Entity

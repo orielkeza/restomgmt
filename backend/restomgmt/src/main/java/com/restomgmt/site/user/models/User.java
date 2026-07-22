@@ -23,8 +23,6 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(exclude = "roles")
-//@Table(name = "users")
-//public class UserNew implements UserDetails, CredentialsContainer {
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
