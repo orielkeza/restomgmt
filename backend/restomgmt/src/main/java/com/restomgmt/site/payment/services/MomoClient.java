@@ -20,7 +20,10 @@ public class MomoClient {
     private final RestTemplate restTemplate;
 
     public String getAccessToken() {
-        String credentials = momoConfig.getApiUser() + ":" + momoConfig.getApiKey();
+        log.debug("Using API User: {}", momoConfig.getApiUser());
+        log.debug("Using Subscription Key: {}", momoConfig.getSubscriptionKey());   
+
+    String credentials = momoConfig.getApiUser() + ":" + momoConfig.getApiKey();
         String encoded = Base64.getEncoder().encodeToString(credentials.getBytes());
 
         HttpHeaders headers = new HttpHeaders();
@@ -90,20 +93,25 @@ public class MomoClient {
 
         HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-        ResponseEntity<Map> response = restTemplate.exchange(
-            momoConfig.getBaseUrl() + "/collection/v1_0/requesttopay/" + referenceId,
-            HttpMethod.GET,
-            entity,
-            Map.class
-        );
+        try {
+            ResponseEntity<Map> response = restTemplate.exchange(
+                momoConfig.getBaseUrl() + "/collection/v1_0/requesttopay/" + referenceId,
+                HttpMethod.GET,
+                entity,
+                Map.class
+            );
 
-        Map<String, Object> body = response.getBody();
-        if (body == null) {
-            throw new IllegalStateException("Empty response from MTN");
+            Map<String, Object> body = response.getBody();
+            if (body == null) {
+                return "PENDING";
+            }
+
+            String status = (String) body.get("status");
+            log.debug("Payment status for {}: {}", referenceId, status);
+            return status;
+        } catch (Exception e) {
+            log.warn("Could not get payment status from MTN: {}", e.getMessage());
+            return "PENDING";
         }
-
-        String status = (String) body.get("status");
-        log.debug("Payment status for {}: {}", referenceId, status);
-        return status;
     }
 }

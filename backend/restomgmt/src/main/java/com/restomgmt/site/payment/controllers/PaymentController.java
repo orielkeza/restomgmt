@@ -36,13 +36,14 @@ public class PaymentController {
     }
 
     @GetMapping("/orders/{orderId}/status")
-    public ResponseEntity<PaymentResponse> checkPaymentStatus(
-            @PathVariable Long orderId) {
+    public ResponseEntity<PaymentResponse> checkPaymentStatus(@PathVariable Long orderId) {
         try {
-            return ResponseEntity.ok(
-                paymentService.checkAndUpdatePaymentStatus(orderId));
+            return ResponseEntity.ok(paymentService.checkAndUpdatePaymentStatus(orderId));
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            log.error("Error checking payment status: {}", e.getMessage());
+            return ResponseEntity.internalServerError().build();
         }
     }
 
