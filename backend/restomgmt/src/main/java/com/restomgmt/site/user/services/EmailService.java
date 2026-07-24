@@ -50,4 +50,52 @@ public class EmailService {
         mailSender.send(message);
         log.info("Password reset email sent to {}", toEmail);
     }
+
+    public void sendPaymentSuccessEmail(String toEmail, String username, Long orderId) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(toEmail);
+        message.setSubject("Payment Confirmed - Order #" + orderId);
+        message.setText(
+            "Hi " + username + ",\n\n" +
+            "Your payment for order #" + orderId + " has been confirmed.\n\n" +
+            "Your order is now being prepared. You can track your order status by logging in.\n\n" +
+            "Thank you for your order!\n\n" +
+            "RestoManagement Team"
+        );
+        mailSender.send(message);
+        log.info("Payment success email sent to {}", toEmail);
+    }
+
+    public void sendPaymentFailedEmail(String toEmail, String username, Long orderId) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(toEmail);
+        message.setSubject("Payment Failed - Order #" + orderId);
+        message.setText(
+            "Hi " + username + ",\n\n" +
+            "Unfortunately your payment for order #" + orderId + " has failed.\n\n" +
+            "Please try again by logging in and initiating a new payment.\n\n" +
+            "If you continue to have issues, please contact us.\n\n" +
+            "RestoManagement Team"
+        );
+        mailSender.send(message);
+        log.info("Payment failed email sent to {}", toEmail);
+    }
+
+    public void sendAdminCreatedAccountEmail(String toEmail, String username, 
+                                            String temporaryPassword) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(toEmail);
+        message.setSubject("Your RestoManagement Account");
+        message.setText(
+            "Hi " + username + ",\n\n" +
+            "An account has been created for you on RestoManagement.\n\n" +
+            "Your login details are:\n" +
+            "Username: " + username + "\n" +
+            "Temporary Password: " + temporaryPassword + "\n\n" +
+            "Please log in and change your password immediately.\n\n" +
+            "RestoManagement Team"
+        );
+        mailSender.send(message);
+        log.info("Admin created account email sent to {}", toEmail);
+    }
 }

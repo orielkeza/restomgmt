@@ -3,10 +3,13 @@ package com.restomgmt.site.user.controllers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import com.restomgmt.site.user.dto.AdminCreateUserRequest;
 import com.restomgmt.site.user.dto.RoleAssignmentRequest;
 import com.restomgmt.site.user.dto.UserResponse;
 import com.restomgmt.site.user.dto.UserUpdateRequest;
 import com.restomgmt.site.user.services.UserService;
+
+import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -79,13 +82,41 @@ public class UserController {
 
     @PutMapping("/{id}/roles")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<UserResponse> assignRole(
+    public ResponseEntity<?> assignRole(
             @PathVariable Long id,
-            @RequestBody RoleAssignmentRequest request) {
+            @Valid @RequestBody RoleAssignmentRequest request) {
         try {
             return ResponseEntity.ok(userService.assignRole(id, request));
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}/roles")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> removeRole(
+            @PathVariable Long id,
+            @Valid @RequestBody RoleAssignmentRequest request) {
+        try {
+            return ResponseEntity.ok(userService.removeRole(id, request));
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/admin/create")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> adminCreateUser(
+            @Valid @RequestBody AdminCreateUserRequest request) {
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED)
+                .body(userService.adminCreateUser(request));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 

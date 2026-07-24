@@ -9,6 +9,9 @@ import com.restomgmt.site.payment.dto.PaymentResponse;
 import com.restomgmt.site.payment.models.Payment;
 import com.restomgmt.site.payment.models.PaymentStatus;
 import com.restomgmt.site.payment.repositories.PaymentRepository;
+import com.restomgmt.site.user.models.User;
+import com.restomgmt.site.user.services.EmailService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,7 @@ public class PaymentService {
     private final OrderRepository orderRepository;
     private final MomoClient momoClient;
     private final MomoConfig momoConfig;
+    private final EmailService emailService;
 
     @Transactional
     public PaymentResponse initiatePayment(Long orderId,
@@ -97,11 +101,24 @@ public class PaymentService {
                 Order order = payment.getOrder();
                 order.setStatus(OrderStatus.CONFIRMED);
                 orderRepository.save(order);
+
+                // Send success email
+                User user = order.getUser();
+                emailService.sendPaymentSuccessEmail(
+                    user.getEmail(), user.getUsername(), orderId);
+
                 log.info("Payment successful for order {}", orderId);
             }
             case "FAILED" -> {
                 payment.setStatus(PaymentStatus.FAILED);
                 payment.setFailureReason("Payment rejected by MTN");
+
+                // Send failed email
+                Order order = payment.getOrder();
+                User user = order.getUser();
+                emailService.sendPaymentFailedEmail(
+                    user.getEmail(), user.getUsername(), orderId);
+
                 log.warn("Payment failed for order {}", orderId);
             }
             default -> log.debug("Payment still pending for order {}", orderId);
@@ -129,6 +146,28 @@ public class PaymentService {
         Payment payment = paymentRepository.findByOrder_Id(orderId)
             .orElseThrow(() -> new NoSuchElementException("Payment not found"));
         return toResponse(payment);
+    }
+
+    @Transactional
+    public PaymentResponse overrideStatus(Long orderId, PaymentStatus status) {
+        Payment payment = paymentRepository.findByOrder_Id(orderId)
+            .orElseThrow(() -> new NoSuchElementException("Payment not found"));
+
+        payment.setStatus(status);
+        Order order = payment.getOrder();
+        User user = order.getUser();
+
+        if (status == PaymentStatus.SUCCESSFUL) {
+            order.setStatus(OrderStatus.CONFIRMED);
+            orderRepository.save(order);
+            emailService.sendPaymentSuccessEmail(
+                user.getEmail(), user.getUsername(), orderId);
+        } else if (status == PaymentStatus.FAILED) {
+            emailService.sendPaymentFailedEmail(
+                user.getEmail(), user.getUsername(), orderId);
+        }
+
+        return toResponse(paymentRepository.save(payment));
     }
 
     private PaymentResponse toResponse(Payment payment) {
