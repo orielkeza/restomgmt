@@ -3,16 +3,18 @@ import { paymentApi, type PaymentResponse } from '../../api/paymentApi';
 import type { RootState } from '../../store/store';
 
 interface PaymentState {
-    currentPayment: PaymentResponse | null;
+    paymentsByOrderId: Record<number, PaymentResponse>;
     initiateStatus: 'idle' | 'loading' | 'failed';
-    pollStatus: 'idle' | 'polling' | 'done' | 'timeout' | 'failed';
+    fetchStatus: 'idle' | 'loading' | 'failed';
+    updateStatus: 'idle' | 'loading' | 'failed';
     error: string | null;
 }
 
 const initialState: PaymentState = {
-    currentPayment: null,
+    paymentsByOrderId: {},
     initiateStatus: 'idle',
-    pollStatus: 'idle',
+    fetchStatus: 'idle',
+    updateStatus: 'idle',
     error: null,
 };
 
@@ -30,72 +32,63 @@ export const initiatePayment = createAsyncThunk<
     }
 });
 
-export const checkPaymentStatus = createAsyncThunk<PaymentResponse, number, ThunkConfig>(
-    'payments/checkPaymentStatus',
+export const fetchPaymentForOrder = createAsyncThunk<PaymentResponse, number, ThunkConfig>(
+    'payments/fetchPaymentForOrder',
     async (orderId, { getState, rejectWithValue }) => {
         try {
-            return await paymentApi.checkStatus(getState().auth.token, orderId);
+            return await paymentApi.getPayment(getState().auth.token, orderId);
         } catch (err) {
-            return rejectWithValue(err instanceof Error ? err.message : 'Failed to check payment status');
+            return rejectWithValue(err instanceof Error ? err.message : 'No payment found for this order');
         }
     }
 );
 
-export const flagRefund = createAsyncThunk<PaymentResponse, number, ThunkConfig>(
-    'payments/flagRefund',
-    async (orderId, { getState, rejectWithValue }) => {
-        try {
-            return await paymentApi.flagRefund(getState().auth.token, orderId);
-        } catch (err) {
-            return rejectWithValue(err instanceof Error ? err.message : 'Failed to flag refund');
-        }
+export const setPaymentStatus = createAsyncThunk<
+    PaymentResponse,
+    { orderId: number; status: 'SUCCESSFUL' | 'PENDING' },
+    ThunkConfig
+>('payments/setPaymentStatus', async ({ orderId, status }, { getState, rejectWithValue }) => {
+    try {
+        return await paymentApi.setPaymentStatus(getState().auth.token, orderId, status);
+    } catch (err) {
+        return rejectWithValue(err instanceof Error ? err.message : 'Failed to update payment status');
     }
-);
+});
 
 export const paymentSlice = createSlice({
     name: 'payments',
     initialState,
-    reducers: {
-        resetPayment: (state) => {
-            state.currentPayment = null;
-            state.initiateStatus = 'idle';
-            state.pollStatus = 'idle';
-            state.error = null;
-        },
-        setPollTimeout: (state) => {
-            state.pollStatus = 'timeout';
-        },
-    },
+    reducers: {},
     extraReducers: (builder) => {
         builder
-            .addCase(initiatePayment.pending, (state) => {
-                state.initiateStatus = 'loading';
-                state.error = null;
-            })
+            .addCase(initiatePayment.pending, (state) => { state.initiateStatus = 'loading'; state.error = null; })
             .addCase(initiatePayment.fulfilled, (state, action) => {
                 state.initiateStatus = 'idle';
-                state.currentPayment = action.payload;
-                state.pollStatus = 'polling';
+                state.paymentsByOrderId[action.payload.orderId] = action.payload;
             })
             .addCase(initiatePayment.rejected, (state, action) => {
                 state.initiateStatus = 'failed';
                 state.error = (action.payload as string) ?? 'Failed to start payment';
             })
-            .addCase(checkPaymentStatus.fulfilled, (state, action) => {
-                state.currentPayment = action.payload;
-                if (action.payload.status !== 'PENDING') {
-                    state.pollStatus = 'done';
-                }
+            .addCase(fetchPaymentForOrder.pending, (state) => { state.fetchStatus = 'loading'; })
+            .addCase(fetchPaymentForOrder.fulfilled, (state, action) => {
+                state.fetchStatus = 'idle';
+                state.paymentsByOrderId[action.payload.orderId] = action.payload;
             })
-            .addCase(checkPaymentStatus.rejected, (state, action) => {
-                state.pollStatus = 'failed';
-                state.error = (action.payload as string) ?? 'Failed to check payment status';
+            .addCase(fetchPaymentForOrder.rejected, (state, action) => {
+                state.fetchStatus = 'failed';
+                state.error = (action.payload as string) ?? 'No payment found';
             })
-            .addCase(flagRefund.fulfilled, (state, action) => {
-                state.currentPayment = action.payload;
+            .addCase(setPaymentStatus.pending, (state) => { state.updateStatus = 'loading'; })
+            .addCase(setPaymentStatus.fulfilled, (state, action) => {
+                state.updateStatus = 'idle';
+                state.paymentsByOrderId[action.payload.orderId] = action.payload;
+            })
+            .addCase(setPaymentStatus.rejected, (state, action) => {
+                state.updateStatus = 'failed';
+                state.error = (action.payload as string) ?? 'Failed to update payment status';
             });
     },
 });
 
-export const { resetPayment, setPollTimeout } = paymentSlice.actions;
 export default paymentSlice.reducer;

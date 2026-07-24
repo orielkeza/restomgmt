@@ -5,9 +5,9 @@ import { fetchMyOrders, fetchAllOrders, cancelOrder, advanceOrderStatus } from '
 import { type OrderStatus, type OrderResponse } from '../../api/orderApi';
 import { theme } from '../../theme';
 import { RiderAssignmentForm } from './RiderAissgnmentForm';
-import { flagRefund } from '../payments/paymentSlice';
 import { PageLoader } from '../../components/PageLoader';
 import { LoadingButton } from '../../components/LoadingButton';
+import { OrderDetailModal } from './OrderDetailModal'; // 1. IMPORT ADDED HERE
 
 const STATUS_ORDER: OrderStatus[] = ['PENDING', 'CONFIRMED', 'PREPARING', 'READY', 'OUTFORDELIVERY', 'DELIVERED'];
 
@@ -27,7 +27,7 @@ function getStatusStyle(status: OrderStatus): React.CSSProperties {
         case 'OUTFORDELIVERY': return { ...base, backgroundColor: theme.colors.indigoBg, color: theme.colors.indigoText };
         case 'DELIVERED':      return { ...base, backgroundColor: theme.colors.successBg, color: theme.colors.successText };
         case 'CANCELLED':      return { ...base, backgroundColor: theme.colors.dangerBg, color: theme.colors.dangerText };
-        default:                 return { ...base, backgroundColor: '#F3F4F6', color: theme.colors.textSecondary };
+        default:               return { ...base, backgroundColor: '#F3F4F6', color: theme.colors.textSecondary };
     }
 }
 
@@ -43,6 +43,9 @@ export const OrderView: React.FC = () => {
     const isStaff = viewMode === 'staff';
     const [assigningRiderFor, setAssigningRiderFor] = useState<number | null>(null);
     const pendingOrderIds = useSelector((state: RootState) => state.orders.pendingOrderIds);
+    
+    // 2. STATE ALREADY EXISTS HERE
+    const [detailOrderId, setDetailOrderId] = useState<number | null>(null);
 
     useEffect(() => {
         if (status === 'idle') {
@@ -102,6 +105,14 @@ export const OrderView: React.FC = () => {
                                 {orders.map((order) => (
                                     <tr key={order.orderId} style={{ borderBottom: `1px solid ${theme.colors.border}`, fontSize: '14px', color: theme.colors.textPrimary }}>
                                         <td style={{ padding: '16px' }}>
+                                            {/* 3. VIEW BUTTON PLACED HERE */}
+                                            <button 
+                                                onClick={() => setDetailOrderId(order.orderId)} 
+                                                style={{ ...actionBtnStyle, marginRight: '6px' }}
+                                            >
+                                                View
+                                            </button>
+
                                             {isStaff && order.status === 'OUTFORDELIVERY' && !order.riderPhone && (
                                                 assigningRiderFor === order.orderId ? (
                                                     <RiderAssignmentForm orderId={order.orderId} onDone={() => setAssigningRiderFor(null)} />
@@ -115,7 +126,6 @@ export const OrderView: React.FC = () => {
                                                 <span style={{ fontSize: '12px', color: theme.colors.textSecondary }}>Rider: {order.riderPhone}</span>
                                             )}
                                             {isStaff && order.status !== 'OUTFORDELIVERY' && nextStatus(order.status) && (
-                                                // staff "Mark X" button:
                                                 <LoadingButton
                                                     loading={pendingOrderIds.includes(order.orderId)}
                                                     onClick={() => dispatch(advanceOrderStatus({ orderId: order.orderId, status: nextStatus(order.status)! }))}
@@ -124,13 +134,8 @@ export const OrderView: React.FC = () => {
                                                     Mark {statusLabel(nextStatus(order.status)!)}
                                                 </LoadingButton>
                                             )}
-                                            {isStaff && order.status === 'CANCELLED' && (
-                                                <button onClick={() => dispatch(flagRefund(order.orderId))} style={{ ...actionBtnStyle, color: theme.colors.dangerText }}>
-                                                    Flag Refund
-                                                </button>
-                                            )}
+                                            
                                             {!isStaff && canCancel(order) && (
-                                                // customer "Cancel" button:
                                                 <LoadingButton
                                                     loading={pendingOrderIds.includes(order.orderId)}
                                                     onClick={() => dispatch(cancelOrder(order.orderId))}
@@ -146,6 +151,11 @@ export const OrderView: React.FC = () => {
                         </table>
                     </div>
                 </div>
+            )}
+
+            {/* 4. MODAL RENDER PLACED HERE */}
+            {detailOrderId !== null && (
+                <OrderDetailModal orderId={detailOrderId} onClose={() => setDetailOrderId(null)} />
             )}
         </div>
     );

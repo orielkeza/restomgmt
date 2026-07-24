@@ -1,182 +1,91 @@
-import React, { type JSX } from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { type RootState } from '../../store/store';
-import { setActiveTab, type DashboardCategoryTab, type DashboardItem } from './dashboardSlice';
+import { type RootState, type AppDispatch } from '../../store/store';
+import { fetchAllOrders } from '../order/orderSlice';
+import { fetchAllItemsAdmin } from '../menu/menuSlice';
+import { fetchUsers } from '../users/userSlice';
+import { PageLoader } from '../../components/PageLoader';
 import { theme } from '../../theme';
 
 export const DashboardView: React.FC = () => {
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
+    const { allOrders, status: orderStatus } = useSelector((state: RootState) => state.orders);
+    const { items, status: menuStatus } = useSelector((state: RootState) => state.menu);
+    const { users, status: userStatus } = useSelector((state: RootState) => state.users);
 
-    //grabbing data from from global Redux dashboard cloud
-    const { items, activeTab } = useSelector((state: RootState) => state.dashboard);
+    useEffect(() => {
+        if (orderStatus === 'idle') dispatch(fetchAllOrders());
+        if (menuStatus === 'idle') dispatch(fetchAllItemsAdmin());
+        if (userStatus === 'idle') dispatch(fetchUsers());
+    }, [orderStatus, menuStatus, userStatus, dispatch]);
 
-    //decides display of dashboard and what features are shown
-    const categoryConfig: Record<string, { bg?: string; text?: string; renderDetails: (item: DashboardItem) => JSX.Element }> = {
-        'bookings': {
-            bg: 'white',
-            renderDetails: (item: DashboardItem) => (
-                <p style={{
-                    color: '#E78B6D',
-                    fontWeight: 'bold',
-                    margin: '0 0 12px 0'}}>
-                    <span>Reserved Under: {item.customerName}</span><br/>
-                    <span>Meal: {item.meal}</span><br/>
-                    <span>Table: {item.tableNumber}</span>
-                </p>
-            )
-        },
-        'orders': {
-            renderDetails: (item: DashboardItem) => (
-                <p style={{
-                    color: '#E78B6D',
-                    fontWeight: 'bold',
-                    margin: '0 0 12px 0'}}>
-                    <span>Table: {item.tableNumber}</span><br/>
-                    <span>Order: {String(item.items)}</span><br/>
-                    <span>Status: {item.status}</span>
-                </p>
-            )
-        },
-        'payments': {
-            renderDetails: (item: DashboardItem) => (
-                <p style={{
-                    color: '#E78B6D',
-                    fontWeight: 'bold',
-                    margin: '0 0 12px 0'}}>
-                    <span>Customer: {item.customerName}</span><br/>
-                    <span>Amount: {item.price}</span><br/>
-                    <span>Status: {item.payment}</span>
-                </p>
-            )
-        }
-    };
+    if (orderStatus === 'loading' || orderStatus === 'idle') {
+        return <PageLoader label="Loading dashboard…" />;
+    }
 
-    //dynamic filtration of items based on the active tab
-    const filteredItems = items.filter((item: DashboardItem) => {
-        if (activeTab === 'bookings'){
-            return item.category === 'bookings';
-        } else if (activeTab === 'orders') {
-            return item.category === 'orders';
-        } else if (activeTab === 'payments') {
-            return item.category === 'payments';
-        }
-        return false;
-    });
+    const pendingOrders = allOrders.filter((o) => o.status === 'PENDING').length;
+    const inProgress = allOrders.filter((o) => !['PENDING', 'DELIVERED', 'CANCELLED'].includes(o.status)).length;
+    const unavailableItems = items.filter((i) => !i.available).length;
+    const totalRevenue = allOrders
+        .filter((o) => o.status !== 'CANCELLED')
+        .reduce((sum, o) => sum + o.total, 0);
 
     const statCards = [
-        { label: 'Bookings', value: items.filter(i => i.category === 'bookings').length, bg: theme.colors.infoBg, fg: theme.colors.infoText },
-        { label: 'Orders in Progress', value: items.filter(i => i.category === 'orders' && i.status !== 'done').length, bg: theme.colors.warningBg, fg: theme.colors.warningText },
-        { label: 'Payments Pending', value: items.filter(i => i.category === 'payments' && i.payment === false).length, bg: theme.colors.successBg, fg: theme.colors.successText },
+        { label: 'Pending Orders', value: pendingOrders, bg: theme.colors.warningBg, fg: theme.colors.warningText },
+        { label: 'Orders In Progress', value: inProgress, bg: theme.colors.infoBg, fg: theme.colors.infoText },
+        { label: 'Unavailable Items', value: unavailableItems, bg: theme.colors.dangerBg, fg: theme.colors.dangerText },
+        { label: 'Total Users', value: users.length, bg: theme.colors.successBg, fg: theme.colors.successText },
     ];
 
-    //category tabs
-    const tabs: { id: DashboardCategoryTab; label: string } [] = [
-        {id: 'orders', label: 'Orders'},
-        {id: 'bookings', label: 'Bookings'},
-        {id: 'payments', label: 'Payments'},
-    ];
+    const recentOrders = [...allOrders]
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(0, 6);
 
     return (
-
-        <div style={{ padding: '20px', fontFamily: 'sans-serif', maxWidth: '800px', margin: '0 auto'}}>
-            <h1 style={{ color: '#333', marginBottom: '30px', textAlign: 'center', marginTop:'60px' }}>Dashboard</h1>
-            
-            {}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px' }}>
+        <div style={{ fontFamily: theme.font }}>
+            <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                gap: '16px', marginBottom: '28px',
+            }}>
                 {statCards.map((c) => (
-                    <div key={c.label} style={{ background: c.bg, borderRadius: '12px', padding: '20px' }}>
-                        <div style={{ fontSize: '13px', color: '#555', fontWeight: 600 }}>{c.label}</div>
-                        <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#111' }}>{c.value}</div>
+                    <div key={c.label} style={{ background: c.bg, borderRadius: theme.radius.md, padding: '20px' }}>
+                        <div style={{ fontSize: '13px', color: c.fg, fontWeight: 600, opacity: 0.85 }}>{c.label}</div>
+                        <div style={{ fontSize: '28px', fontWeight: 'bold', color: c.fg }}>{c.value}</div>
                     </div>
                 ))}
             </div>
 
-            {}
-            <div style={{ 
-                display: 'flex',
-                gap: '12px',
-                marginBottom: '30px',
-                borderBottom: '1px solid #eee',
-                paddingBottom: '12px'}}>
-                {tabs.map((tab) => {
-                    const isActive = activeTab === tab.id;
-                    return (
-                        <button
-                            key={tab.id}
-                            onClick={() => dispatch(setActiveTab(tab.id))}
-                            style={{
-                                padding: '10px 20px',
-                                borderRadius: '20px',
-                                border: 'none',
-                                cursor: 'pointer',
-                                fontWeight: 'bold',
-                                fontSize: '14px',
-                                backgroundColor: theme.colors.brand,
-                                color: isActive ? 'white' : '#555',
-                                transition: 'all 0.2s ease'
-                            }}
-                        >
-                            {tab.label}
-                        </button>
-                    );
-                })}
+            <div style={{
+                background: theme.colors.surface, borderRadius: theme.radius.md,
+                boxShadow: theme.shadow.card, padding: '24px', marginBottom: '24px',
+            }}>
+                <div style={{ fontSize: '13px', color: theme.colors.textSecondary, marginBottom: '4px' }}>Total Revenue (non-cancelled)</div>
+                <div style={{ fontSize: '26px', fontWeight: 700, color: theme.colors.textPrimary }}>{totalRevenue.toLocaleString()} RWF</div>
             </div>
 
-            {}
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-                gap: '20px'
-            }}>
-                {filteredItems.map((item) => {
-
-                    const currentStatus = item.category;
-                    const config = categoryConfig[currentStatus];
-                    return (
-
-                    <div
-
-                        key={item.id}
-                        style={{
-                            border: '1px solid #e0e0e0',
-                            borderRadius: '12px',
-                            padding: '16px',
-                            textAlign: 'center',
-                            boxShadow: '0 4px 6px rgba(0,0,0,0.02)'
-                        }}
-                    >
-                    <h3 style={{ margin: '12px 0 6px 0', fontSize: '16px', color: '#333' }}>{item.customerName}</h3>
-                    {}
-                    <span style={{
-                        //backgroundColor: config.bg,
-                        //color: config.text,
-                        padding: '4px 10px',
-                        borderRadius: '20px',
-                        fontSize: '11px',
-                        display: 'inline-block',
-                        marginBottom: '12px'
-                    }}>
-                        {config.renderDetails(item)}
-                    </span>
-
-                    
-                    
-                    <button style={{
-                        width: '100%',
-                        padding: '8px',
-                        background: '#333',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        cursor: 'pointer',
-                        fontWeight: 'bold'
-                    }}>
-                        Add to Order
-                    </button>
+            <div style={{ background: theme.colors.surface, borderRadius: theme.radius.md, boxShadow: theme.shadow.card, overflow: 'hidden' }}>
+                <div style={{ padding: '16px 20px', borderBottom: `1px solid ${theme.colors.border}`, fontWeight: 700, color: theme.colors.textPrimary }}>
+                    Recent Orders
                 </div>
-                );
-            })}
+                {recentOrders.length === 0 ? (
+                    <div style={{ padding: '32px', textAlign: 'center', color: theme.colors.textSecondary }}>No orders yet.</div>
+                ) : (
+                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                        <tbody>
+                            {recentOrders.map((o) => (
+                                <tr key={o.orderId} style={{ borderBottom: `1px solid ${theme.colors.border}`, fontSize: '13px' }}>
+                                    <td style={{ padding: '12px 20px', fontWeight: 700 }}>#{o.orderId}</td>
+                                    <td style={{ padding: '12px', color: theme.colors.textSecondary }}>{o.username}</td>
+                                    <td style={{ padding: '12px', color: theme.colors.textSecondary }}>{new Date(o.createdAt).toLocaleString()}</td>
+                                    <td style={{ padding: '12px', fontWeight: 600 }}>{o.total.toLocaleString()} RWF</td>
+                                    <td style={{ padding: '12px 20px', textAlign: 'right', color: theme.colors.textSecondary }}>{o.status}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
             </div>
         </div>
-    )
+    );
 };

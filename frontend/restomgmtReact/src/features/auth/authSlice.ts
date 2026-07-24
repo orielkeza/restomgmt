@@ -23,7 +23,7 @@ const initialState: AuthState = {
     username: decodedOnLoad?.sub ?? null,
     roles: decodedOnLoad?.roles ?? [],
     isLoggedIn: !!storedToken,
-    viewMode: (initialRoles.includes('ADMIN') || initialRoles.includes('STAFF')) ? 'staff' : 'customer',
+    viewMode: (initialRoles.includes('ROLE_ADMIN') || initialRoles.includes('ROLE_STAFF')) ? 'staff' : 'customer',
     loginStatus: 'idle',
     loginError: null,
     registerStatus: 'idle',
@@ -78,7 +78,7 @@ export const authSlice = createSlice({
                 state.username = decoded?.sub ?? null;
                 state.roles = decoded?.roles ?? [];
                 state.isLoggedIn = true;
-                state.viewMode = (state.roles.includes('ADMIN') || state.roles.includes('STAFF')) ? 'staff' : 'customer';
+                state.viewMode = (state.roles.includes('ROLE_ADMIN') || state.roles.includes('ROLE_STAFF')) ? 'staff' : 'customer';
                 state.loginStatus = 'idle';
                 localStorage.setItem('auth_token', action.payload);
             })

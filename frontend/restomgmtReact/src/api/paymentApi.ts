@@ -28,6 +28,12 @@ export const paymentApi = {
   getPayment: (token: string | null, orderId: number): Promise<PaymentResponse> =>
     authFetch(`/payments/orders/${orderId}`, token),
 
+  setPaymentStatus: (token: string | null, orderId: number, status: 'SUCCESSFUL' | 'PENDING'): Promise<PaymentResponse> =>
+  authFetch(`/payments/orders/${orderId}/manual-status`, token, {
+    method: 'PUT',
+    body: JSON.stringify({ status }),
+  }),
+
   // ADMIN/STAFF only
   flagRefund: (token: string | null, orderId: number): Promise<PaymentResponse> =>
     authFetch(`/payments/orders/${orderId}/refund`, token, { method: 'POST' }),

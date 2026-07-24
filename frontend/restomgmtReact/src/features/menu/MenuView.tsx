@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { type RootState, type AppDispatch } from '../../store/store';
-import { setActiveTab, fetchMenuData, fetchAllItemsAdmin, toggleItemAvailability, deleteMenuItem } from './menuSlice';
+import { 
+    setActiveTab, 
+    fetchMenuData, 
+    fetchAllItemsAdmin, 
+    toggleItemAvailability, 
+    deleteMenuItem,
+    createCategory,
+    deleteCategory 
+} from './menuSlice';
 import { addToCart } from '../cart/cartSlice';
 import { type MenuItemResponse } from '../../api/menuApi';
 import { MenuItemFormModal } from './MenuItemFormModal';
@@ -9,22 +17,34 @@ import { theme } from '../../theme';
 import { PageLoader } from '../../components/PageLoader';
 import { LoadingButton } from '../../components/LoadingButton';
 
+// Simple fallback toast helper if not supplied via context/props
+const showToast = (message: string, type: 'success' | 'error') => {
+    if (type === 'error') {
+        alert(`Error: ${message}`);
+    } else {
+        console.log(`[Toast ${type}]: ${message}`);
+    }
+};
+
 export const MenuView: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
     const { items, categories, activeTab, status, error } = useSelector((state: RootState) => state.menu);
     const roles = useSelector((state: RootState) => state.auth.roles);
     const viewMode = useSelector((state: RootState) => state.auth.viewMode);
 
-    const canManageMenu = viewMode === 'staff' && (roles.includes('ROLE_ADMIN') || roles.includes('STAFF'));
+    const canManageMenu = viewMode === 'staff' && (roles.includes('ROLE_ADMIN') || roles.includes('ROLE_STAFF'));
     const [modalItem, setModalItem] = useState<MenuItemResponse | 'new' | null>(null);
+    const [newCategoryName, setNewCategoryName] = useState('');
 
     const pendingItemIds = useSelector((state: RootState) => state.menu.pendingItemIds);
 
-    useEffect(() => {
-        if (status === 'idle') {
-            dispatch(canManageMenu ? fetchAllItemsAdmin() : fetchMenuData());
-        }
-    }, [status, canManageMenu, dispatch]);
+useEffect(() => {
+    if (canManageMenu) {
+        dispatch(fetchAllItemsAdmin());
+    } else {
+        dispatch(fetchMenuData());
+    }
+}, [canManageMenu, dispatch]);
 
     const filteredItems = activeTab === 'all'
         ? items
@@ -40,7 +60,13 @@ export const MenuView: React.FC = () => {
                 Couldn't load the menu: {error}
                 <div style={{ marginTop: '12px' }}>
                     <button
-                        onClick={() => dispatch(canManageMenu ? fetchAllItemsAdmin() : fetchMenuData())}
+                        onClick={() => {
+                            if (canManageMenu) {
+                                dispatch(fetchAllItemsAdmin());
+                            } else {
+                                dispatch(fetchMenuData());
+                            }
+                        }}
                         style={{
                             padding: '8px 16px', borderRadius: theme.radius.sm, border: 'none',
                             background: theme.colors.brand, color: 'white', cursor: 'pointer', fontWeight: 'bold',
@@ -56,26 +82,81 @@ export const MenuView: React.FC = () => {
     return (
         <div style={{ fontFamily: theme.font }}>
             {canManageMenu && (
-                <button
-                    onClick={() => setModalItem('new')}
-                    style={{
-                        marginBottom: '16px', padding: '10px 18px', borderRadius: theme.radius.sm,
-                        border: 'none', background: theme.colors.brand, color: 'white',
-                        fontWeight: 'bold', cursor: 'pointer',
-                    }}
-                >
-                    + Add Menu Item
-                </button>
+                <div style={{ marginBottom: '20px' }}>
+                    <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', alignItems: 'center' }}>
+                        <input
+                            placeholder="New category name"
+                            value={newCategoryName}
+                            onChange={(e) => setNewCategoryName(e.target.value)}
+                            style={{ padding: '8px 10px', borderRadius: theme.radius.sm, border: `1px solid ${theme.colors.border}`, fontSize: '13px' }}
+                        />
+                        <button
+                            onClick={async () => {
+                                if (!newCategoryName.trim()) return;
+                                const result = await dispatch(createCategory({ name: newCategoryName.trim() }));
+                                if (createCategory.fulfilled.match(result)) {
+                                    showToast('Category added', 'success');
+                                    setNewCategoryName('');
+                                } else {
+                                    showToast((result.payload as string) ?? 'Failed to add category', 'error');
+                                }
+                            }}
+                            style={{ padding: '8px 14px', borderRadius: theme.radius.sm, border: 'none', background: theme.colors.brand, color: 'white', fontWeight: 600, cursor: 'pointer', fontSize: '13px' }}
+                        >
+                            Add Category
+                        </button>
+                    </div>
+
+                    <button
+                        onClick={() => setModalItem('new')}
+                        style={{
+                            padding: '10px 18px', borderRadius: theme.radius.sm,
+                            border: 'none', background: theme.colors.brand, color: 'white',
+                            fontWeight: 'bold', cursor: 'pointer',
+                        }}
+                    >
+                        + Add Menu Item
+                    </button>
+                </div>
             )}
 
-            <div style={{ display: 'flex', gap: '10px', marginBottom: '28px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '10px', marginBottom: '28px', flexWrap: 'wrap', alignItems: 'center' }}>
                 <button onClick={() => dispatch(setActiveTab('all'))} style={tabStyle(activeTab === 'all')}>
                     All Items
                 </button>
                 {categories.map((cat) => (
-                    <button key={cat.id} onClick={() => dispatch(setActiveTab(cat.name))} style={tabStyle(activeTab === cat.name)}>
-                        {cat.name}
-                    </button>
+                    <div key={cat.id} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                        <button onClick={() => dispatch(setActiveTab(cat.name))} style={tabStyle(activeTab === cat.name)}>
+                            {cat.name}
+                        </button>
+                        {canManageMenu && (
+                            <button
+                                title={`Delete ${cat.name} category`}
+                                onClick={async () => {
+                                    if (window.confirm(`Delete category "${cat.name}"?`)) {
+                                        const result = await dispatch(deleteCategory(cat.id));
+                                        if (deleteCategory.fulfilled.match(result)) {
+                                            showToast('Category deleted', 'success');
+                                            if (activeTab === cat.name) dispatch(setActiveTab('all'));
+                                        } else {
+                                            showToast((result.payload as string) ?? 'Failed to delete category', 'error');
+                                        }
+                                    }
+                                }}
+                                style={{
+                                    border: 'none',
+                                    background: 'transparent',
+                                    color: theme.colors.dangerText,
+                                    cursor: 'pointer',
+                                    fontWeight: 'bold',
+                                    fontSize: '14px',
+                                    padding: '2px 6px',
+                                }}
+                            >
+                                ×
+                            </button>
+                        )}
+                    </div>
                 ))}
             </div>
 
@@ -130,7 +211,6 @@ export const MenuView: React.FC = () => {
                         </p>
 
                         {!canManageMenu && (
-                            // Add to Order:
                             <LoadingButton
                                 loading={pendingItemIds.includes(item.id)}
                                 disabled={!item.available}

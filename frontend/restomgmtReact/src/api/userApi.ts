@@ -8,6 +8,13 @@ export interface UserResponse {
   enabled: boolean;
 }
 
+export interface AdminCreateUserRequest {
+  username: string;
+  email: string;
+  fullName?: string;
+  roleName?: string; // defaults server-side to ROLE_USER
+}
+
 export const userApi = {
   getAllUsers: (token: string | null): Promise<UserResponse[]> =>
     authFetch('/users', token),
@@ -23,4 +30,16 @@ export const userApi = {
 
   assignRole: (token: string | null, id: number, roleName: string): Promise<UserResponse> =>
     authFetch(`/users/${id}/roles`, token, { method: 'PUT', body: JSON.stringify({ roleName }) }),
+
+  removeRole: (token: string | null, id: number, roleName: string): Promise<UserResponse> =>
+    authFetch(`/users/${id}/roles`, token, {
+      method: 'DELETE',
+      body: JSON.stringify({ roleName }),
+    }),
+
+  adminCreateUser: (token: string | null, payload: AdminCreateUserRequest): Promise<UserResponse> =>
+    authFetch('/users/admin/create', token, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
 };

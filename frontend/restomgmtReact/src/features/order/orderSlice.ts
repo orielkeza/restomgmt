@@ -5,21 +5,25 @@ import type { RootState } from '../../store/store';
 interface OrderState {
     myOrders: OrderResponse[];
     allOrders: OrderResponse[];
+    selectedOrder: OrderResponse | null;
+    selectedOrderStatus: 'idle' | 'loading' | 'failed';
     status: 'idle' | 'loading' | 'succeeded' | 'failed';
-    mutationStatus: 'idle' | 'loading' | 'failed';
+    mutationStatus: 'idle' | 'loading' | 'failed'; // used by placeOrder (page-level checkout button)
+    pendingOrderIds: number[]; // per-row: cancel / advance status / assign rider in flight
     error: string | null;
     lastPlacedOrder: OrderResponse | null;
-    pendingOrderIds: number[];
 }
 
 const initialState: OrderState = {
     myOrders: [],
     allOrders: [],
+    selectedOrder: null,
+    selectedOrderStatus: 'idle',
     status: 'idle',
     mutationStatus: 'idle',
+    pendingOrderIds: [],
     error: null,
     lastPlacedOrder: null,
-    pendingOrderIds: [],
 };
 
 type ThunkConfig = { state: RootState };
@@ -46,17 +50,6 @@ export const fetchMyOrders = createAsyncThunk<OrderResponse[], void, ThunkConfig
     }
 );
 
-export const cancelOrder = createAsyncThunk<OrderResponse, number, ThunkConfig>(
-    'orders/cancelOrder',
-    async (orderId, { getState, rejectWithValue }) => {
-        try {
-            return await orderApi.cancelOrder(getState().auth.token, orderId);
-        } catch (err) {
-            return rejectWithValue(err instanceof Error ? err.message : 'Failed to cancel order');
-        }
-    }
-);
-
 export const fetchAllOrders = createAsyncThunk<OrderResponse[], void, ThunkConfig>(
     'orders/fetchAllOrders',
     async (_, { getState, rejectWithValue }) => {
@@ -68,7 +61,29 @@ export const fetchAllOrders = createAsyncThunk<OrderResponse[], void, ThunkConfi
     }
 );
 
-export const advanceOrderStatus = createAsyncThunk<
+export const fetchOrderById = createAsyncThunk<OrderResponse, number, ThunkConfig>(
+    'orders/fetchOrderById',
+    async (orderId, { getState, rejectWithValue }) => {
+        try {
+            return await orderApi.getOrderById(getState().auth.token, orderId);
+        } catch (err) {
+            return rejectWithValue(err instanceof Error ? err.message : 'Failed to load order');
+        }
+    }
+);
+
+export const cancelOrder = createAsyncThunk<OrderResponse, number, ThunkConfig>(
+    'orders/cancelOrder',
+    async (orderId, { getState, rejectWithValue }) => {
+        try {
+            return await orderApi.cancelOrder(getState().auth.token, orderId);
+        } catch (err) {
+            return rejectWithValue(err instanceof Error ? err.message : 'Failed to cancel order');
+        }
+    }
+);
+
+export const advanceOrderStatus = createAsyncThunk <
     OrderResponse,
     { orderId: number; status: OrderStatus },
     ThunkConfig
@@ -106,9 +121,14 @@ export const orderSlice = createSlice({
         clearLastPlacedOrder: (state) => {
             state.lastPlacedOrder = null;
         },
+        clearSelectedOrder: (state) => {
+            state.selectedOrder = null;
+            state.selectedOrderStatus = 'idle';
+        },
     },
     extraReducers: (builder) => {
         builder
+            // placeOrder — page-level, uses mutationStatus
             .addCase(placeOrder.pending, (state) => {
                 state.mutationStatus = 'loading';
                 state.error = null;
@@ -122,6 +142,7 @@ export const orderSlice = createSlice({
                 state.mutationStatus = 'failed';
                 state.error = (action.payload as string) ?? 'Failed to place order';
             })
+            // fetchMyOrders
             .addCase(fetchMyOrders.pending, (state) => {
                 state.status = 'loading';
                 state.error = null;
@@ -134,6 +155,7 @@ export const orderSlice = createSlice({
                 state.status = 'failed';
                 state.error = (action.payload as string) ?? 'Failed to load orders';
             })
+            // fetchAllOrders
             .addCase(fetchAllOrders.pending, (state) => {
                 state.status = 'loading';
                 state.error = null;
@@ -146,31 +168,55 @@ export const orderSlice = createSlice({
                 state.status = 'failed';
                 state.error = (action.payload as string) ?? 'Failed to load orders';
             })
+            // fetchOrderById — drives OrderDetailModal
+            .addCase(fetchOrderById.pending, (state) => {
+                state.selectedOrderStatus = 'loading';
+            })
+            .addCase(fetchOrderById.fulfilled, (state, action) => {
+                state.selectedOrderStatus = 'idle';
+                state.selectedOrder = action.payload;
+            })
+            .addCase(fetchOrderById.rejected, (state, action) => {
+                state.selectedOrderStatus = 'failed';
+                state.error = (action.payload as string) ?? 'Failed to load order';
+            })
+            // cancelOrder (per-row)
             .addCase(cancelOrder.pending, (state, action) => addPending(state, action.meta.arg))
             .addCase(cancelOrder.fulfilled, (state, action) => {
                 removePending(state, action.payload.orderId);
                 const idx = state.myOrders.findIndex((o) => o.orderId === action.payload.orderId);
                 if (idx !== -1) state.myOrders[idx] = action.payload;
+                if (state.selectedOrder?.orderId === action.payload.orderId) {
+                    state.selectedOrder = action.payload;
+                }
             })
             .addCase(cancelOrder.rejected, (state, action) => {
                 removePending(state, action.meta.arg);
                 state.error = (action.payload as string) ?? 'Failed to cancel order';
             })
+            // advanceOrderStatus (per-row)
             .addCase(advanceOrderStatus.pending, (state, action) => addPending(state, action.meta.arg.orderId))
             .addCase(advanceOrderStatus.fulfilled, (state, action) => {
                 removePending(state, action.payload.orderId);
                 const idx = state.allOrders.findIndex((o) => o.orderId === action.payload.orderId);
                 if (idx !== -1) state.allOrders[idx] = action.payload;
+                if (state.selectedOrder?.orderId === action.payload.orderId) {
+                    state.selectedOrder = action.payload;
+                }
             })
             .addCase(advanceOrderStatus.rejected, (state, action) => {
                 removePending(state, action.meta.arg.orderId);
                 state.error = (action.payload as string) ?? 'Failed to update status';
             })
+            // assignRider (per-row)
             .addCase(assignRider.pending, (state, action) => addPending(state, action.meta.arg.orderId))
             .addCase(assignRider.fulfilled, (state, action) => {
                 removePending(state, action.payload.orderId);
                 const idx = state.allOrders.findIndex((o) => o.orderId === action.payload.orderId);
                 if (idx !== -1) state.allOrders[idx] = action.payload;
+                if (state.selectedOrder?.orderId === action.payload.orderId) {
+                    state.selectedOrder = action.payload;
+                }
             })
             .addCase(assignRider.rejected, (state, action) => {
                 removePending(state, action.meta.arg.orderId);
@@ -179,5 +225,5 @@ export const orderSlice = createSlice({
     },
 });
 
-export const { clearLastPlacedOrder } = orderSlice.actions;
+export const { clearLastPlacedOrder, clearSelectedOrder } = orderSlice.actions;
 export default orderSlice.reducer;
